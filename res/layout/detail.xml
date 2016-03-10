@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical" android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal" android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:gravity="center">
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/tvTitle"
+                  android:gravity="center" android:textSize="30px"
+                  android:layout_gravity="center"
+                  android:text="设备名称"/>
+    </LinearLayout>
+
+    <TableLayout android:id="@+id/TableLayout02"
+                 android:layout_width="fill_parent"
+                 android:layout_height="wrap_content"
+                 android:stretchColumns="0,1,2"
+                 android:gravity="center"
+                 android:layout_marginTop="5dip">
+        <TableRow>
+            <Button android:id="@+id/btn02"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_02"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btn03"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_03"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btn04"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_04"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+        </TableRow>
+        <TableRow>
+            <Button android:id="@+id/btn05"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_05"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btn06"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_06"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btn07"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_07"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+        </TableRow>
+        <TableRow>
+            <Button android:id="@+id/btn08"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_08"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btn09"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_09"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btn10"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_10"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+        </TableRow>
+        <TableRow>
+            <Button android:id="@+id/btnAll"
+                    android:layout_height="wrap_content"
+                    android:text="查询PIO"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btn11"
+                    android:layout_height="wrap_content"
+                    android:text="PIO_11"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+            <Button android:id="@+id/btnExit"
+                    android:layout_height="wrap_content"
+                    android:text="退出"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom">
+            </Button>
+        </TableRow>
+    </TableLayout>
+    <ScrollView android:id="@+id/svResult"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:fillViewport="false">
+        <TextView android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:id="@+id/tvLog"
+                  android:gravity="left"
+                  android:text="正在连接"/>
+    </ScrollView>
+</LinearLayout>
