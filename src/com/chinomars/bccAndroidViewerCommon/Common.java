@@ -18,13 +18,12 @@ public class Common {
     public static final int MESSAGE_EXCEPTION_RECV = 11;
 
     // C.P. plus
-    public static final int SM_MEASURE = 12; // 发送协议
-    public static final int RM_RESULT = 13; // 接收协议
+    public static final int MESSAGE_SEND_COMMAND = 12; // 发送协议
+    public static final int MESSAGE_RECV_RESULT = 13; // 接收协议
 
     // Static Setting
     public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
     public static final String BIND_BT_MAC = "30:14:12:26:11:35";
-    public static final Integer WAITING_TIME = 1000;
     public static final Double MIN_N = 1.440; // mim n
     public static final Double MAX_N = 1.449; // max n
 

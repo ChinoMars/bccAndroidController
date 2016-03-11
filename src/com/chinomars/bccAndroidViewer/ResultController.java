@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Message;
@@ -16,6 +19,7 @@ import com.chinomars.bccAndroidViewerCommon.Common;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.IOException;
 import java.util.Formatter;
 import java.util.UUID;
 
@@ -81,7 +85,7 @@ public class ResultController extends Activity {
         strName = bund.getString("NAME");
         strAddr = bund.getString("MAC");
         workMode = bund.getInt("MODE");
-        SetTitle(workMode);
+        mSetTitle(workMode);
         tvLog.append(strName + "......\n");
 
         btAdapt = BluetoothAdapter.getDefaultAdapter();
@@ -101,10 +105,23 @@ public class ResultController extends Activity {
         intent.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         intent.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 
-        registerReceiver(connectDevices, intent);
+//        registerReceiver(connectDevices, intent);
 
         mHandler.sendEmptyMessageDelayed(Common.MESSAGE_CONNECT, 1000);
     }
+
+//    private BroadcastReceiver connectDevices = new BroadcastReceiver() {
+////        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            String action = intent.getAction();
+//            Log.d(Common.TAG, "Receiver:" + action);
+//            if(action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)){
+//
+//            } else if(action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
+//
+//            }
+//        }
+//    };
 
     public final Handler mHandler = new Handler() {
         @Override
@@ -141,6 +158,74 @@ public class ResultController extends Activity {
                     break;
                 case Common.MESSAGE_CONNECT_SUCCEED:
                     addLog("连接成功");
+                    bConnect = true;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            byte[] bufRev = new byte[1024];
+                            int nRev = 0;
+                            while(bConnect) {
+                                try {
+                                    Log.e(Common.TAG, "Start Recv" + String.valueOf(mmInStream.available()));
+                                    nRev = mmInStream.read(bufRev);
+                                    if(nRev < 1){
+                                        Log.e(Common.TAG, "Recving Short");
+                                        Thread.sleep(1000);
+                                        continue;
+                                    }
+                                    System.arraycopy(bufRev, 0, bRecv, nRecved, nRev);
+                                    Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
+                                    nRecved += nRev;
+                                    if(nRecved < nNeed){
+                                        Thread.sleep(1000);
+                                        continue;
+                                    }
+
+                                    mHandler.obtainMessage(Common.MESSAGE_RECV, nNeed, -1, null).sendToTarget();
+
+                                } catch(Exception e){
+                                    Log.e(Common.TAG, "Recv thread:" + e.getMessage());
+                                    mHandler.sendEmptyMessage(Common.MESSAGE_EXCEPTION_RECV);
+                                    break;
+                                }
+                            }
+                            Log.e(Common.TAG, "Exit while");
+                        }
+                    }).start();
+                    break;
+                case Common.MESSAGE_EXCEPTION_RECV:
+                case Common.MESSAGE_CONNECT_LOST:
+                    addLog("连接异常， 请退出本界面后重新连接");
+                    try{
+                        if(mmInStream != null){
+                            mmInStream.close();
+                        }
+                        if(mmOutStream != null){
+                            mmOutStream.close();
+                        }
+                        if(btSocket != null){
+                            btSocket.close();
+                        }
+                    } catch(IOException e){
+                        Log.e(Common.TAG, "Close Error");
+                        e.printStackTrace();
+                    } finally {
+                        mmInStream = null;
+                        mmOutStream = null;
+                        btSocket = null;
+                        bConnect = null;
+
+                        // TODO Button apperance Proc
+                    }
+                    break;
+                case Common.MESSAGE_WRITE:
+                    // TODO if need write
+                    break;
+                case Common.MESSAGE_READ:
+                    // TODO if need read
+                    break;
+                case Common.MESSAGE_RECV:
+                    break;
             }
         }
 
@@ -216,7 +301,7 @@ public class ResultController extends Activity {
         }
     }
 
-    private void SetTitle(int mode) {
+    private void mSetTitle(int mode) {
         if (mode == Common.MEASURE_MODE_BCC) {
             tvTitle.setText(Common.BCC_MODE_TITLE);
         }
