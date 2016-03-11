@@ -10,8 +10,7 @@ import android.view.Window;
 /**
  * Created by Chino on 3/8/16.
  */
-public class SplashScreen extends Activity
-{
+public class SplashScreen extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

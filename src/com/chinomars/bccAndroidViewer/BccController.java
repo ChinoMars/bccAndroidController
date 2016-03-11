@@ -84,15 +84,12 @@ public class BccController extends Activity {
 
     }
 
-    private BroadcastReceiver searchDevices = new BroadcastReceiver()
-    {
+    private BroadcastReceiver searchDevices = new BroadcastReceiver() {
 
-        public void onReceive(Context context, Intent intent)
-        {
+        public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if(action.equals(BluetoothDevice.ACTION_FOUND))
-            { //found device
+            if(action.equals(BluetoothDevice.ACTION_FOUND)) { //found device
                 BluetoothDevice device = intent
                         .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String str = device.getName() + "|" + device.getAddress();
@@ -103,17 +100,13 @@ public class BccController extends Activity {
                     lstDevices.set(lstDevices.indexOf("null|" + device.getAddress()), str);
                 adtDevices.notifyDataSetChanged();
 
-            }
-            else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED))
-            {
+            } else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
                 btnScan.setText("正在扫描");
                 btnScan.setTextColor(Color.RED);
 
                 btnConnect.setEnabled(false);
-            }
-            else if (action
-                    .equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED))
-            {
+            } else if (action
+                    .equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
                 btnScan.setTextColor(Color.BLACK);
                 if(!btnConnect.isEnabled())
                     btnConnect.setEnabled(true);
@@ -122,8 +115,7 @@ public class BccController extends Activity {
         }
     };
 
-    private void addPairedDevice() // 增加配对设备
-    {
+    private void addPairedDevice() { // 增加配对设备
         Set<BluetoothDevice> pairedDevices = btAdapt.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
@@ -189,8 +181,7 @@ public class BccController extends Activity {
         return true;
     }
 
-    public void ShowAbout()
-    {
+    public void ShowAbout() {
         new AlertDialog.Builder(this)
                 .setTitle(Common.APP_NAME)
                 .setMessage(Common.ABOUT_CONTENT)
@@ -202,24 +193,12 @@ public class BccController extends Activity {
                                  dialog.dismiss();
                             }
                         }).show();
-//                .setNegativeButton("Yes",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog,
-//                                                int which) {
-//                                // TODO Auto-generated method stub
-//                                // dialog.dismiss();
-//                                Uri uri = Uri.parse("http://www.jnhuamao.cn");
-//                                Intent intent = new Intent(Intent.ACTION_VIEW,
-//                                        uri);
-//                                startActivity(intent);
-//                            }
-//                        }).show();
+
     }
 
     // 菜单选项事件
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case Menu.FIRST + 1:
                 finish();
@@ -232,45 +211,35 @@ public class BccController extends Activity {
     }
 
     // 按钮事件
-    class ClickEvent implements View.OnClickListener
-    {
+    class ClickEvent implements View.OnClickListener {
         @Override
-        public void onClick(View v)
-        {
-            if (v == btnScan)// 搜索设备
-            {
+        public void onClick(View v) {
+            if (v == btnScan) { // 搜索设备
                 btnConnect.setEnabled(false);
-                if (btAdapt == null)
-                {
+                if (btAdapt == null) {
                     Toast.makeText(BccController.this, "您的机器上没有发现蓝牙适配器，本程序将不能运行!", 1000).show();
                     return;
                 }
 
-                if (btAdapt.getState() != BluetoothAdapter.STATE_ON) // bluetooth is down
-                {
+                if (btAdapt.getState() != BluetoothAdapter.STATE_ON) { // bluetooth is down
                     Toast.makeText(BccController.this, "请先开启蓝牙", 1000).show();
                     return;
                 }
 
-                if (!btAdapt.isDiscovering())
-                {
+                if (!btAdapt.isDiscovering()) {
                     lstDevices.clear();
                     addPairedDevice();
                     btAdapt.startDiscovery();
                 }
 
-            }
-            else if (v == btnConnect)
-            {
-                if (measureMode == Common.MEASURE_MODE_UNKNOW)
-                {
+            } else if (v == btnConnect) {
+                if (measureMode == Common.MEASURE_MODE_UNKNOW) {
                     Toast.makeText(BccController.this, "请先选择工作模式", 1000).show();
                     return;
                 }
 
                 Iterator<String> iter = lstDevices.iterator();
-                while (iter.hasNext())
-                {
+                while (iter.hasNext()) {
                     String str = iter.next();
                     String[] values = str.split("\\|");
                     if (str == null || str.equals("")) {
@@ -279,8 +248,7 @@ public class BccController extends Activity {
 
                     if (values[1].equals(Common.BIND_BT_MAC)) {
                         Log.e(Common.TAG, values[1]);
-                        try
-                        {
+                        try {
                             Intent intResult = new Intent(getApplicationContext(), ResultController.class);
                             Bundle bd = new Bundle();
                             bd.putString("NAME", values[0]);
@@ -289,9 +257,7 @@ public class BccController extends Activity {
                             intResult.putExtras(bd);
                             startActivity(intResult);
 
-                        }
-                        catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             Toast.makeText(BccController.this, "蓝牙连接失败，请扫描蓝牙后重试", 1000).show();
                             Log.d(Common.TAG, "Error connected to: " + Common.BIND_BT_MAC);
                             e.printStackTrace();
@@ -301,9 +267,7 @@ public class BccController extends Activity {
                 }
 
 
-            }
-            else if(v == btnAbout)
-            {
+            } else if(v == btnAbout) {
                 ShowAbout();
             }
         }
@@ -311,17 +275,12 @@ public class BccController extends Activity {
     }
 
     // Radio Button Event
-    class CheckedChangeEvent implements RadioGroup.OnCheckedChangeListener
-    {
+    class CheckedChangeEvent implements RadioGroup.OnCheckedChangeListener {
         @Override
-        public void onCheckedChanged(RadioGroup group, int checkId)
-        {
-            if (checkId == R.id.rdio_bccMode)
-            {
+        public void onCheckedChanged(RadioGroup group, int checkId) {
+            if (checkId == R.id.rdio_bccMode) {
                 measureMode = Common.MEASURE_MODE_BCC;
-            }
-            else if(checkId == R.id.rdio_gxcMode)
-            {
+            } else if(checkId == R.id.rdio_gxcMode) {
                 measureMode = Common.MEASURE_MODE_GXC;
             }
         }

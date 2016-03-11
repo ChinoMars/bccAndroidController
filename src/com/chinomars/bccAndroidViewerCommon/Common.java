@@ -3,8 +3,7 @@ package com.chinomars.bccAndroidViewerCommon;
 /**
  * Created by Chino on 3/8/16.
  */
-public class Common
-{
+public class Common {
     // Commnunications Prtocol
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
@@ -46,4 +45,6 @@ public class Common
     public static final String APP_NAME = "臂长差测量软件";
     public static final String ABOUT_CONTENT = "请选择软件工作模式后再连接蓝牙:\n1.干涉型臂长差测量\n2.光线链路长度测量";
     public static final String BTN_YES = "确定";
+    public static final String BCC_MODE_TITLE = "干涉型臂长差测量软件";
+    public static final String GXC_MODE_TITLE = "光线链路长度测量软件";
 }
