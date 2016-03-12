@@ -1,5 +1,6 @@
 # bccAndroidController
 **中二光子实验室出品**
+
 暂时还未取名叫啥。。。
 
 ---
@@ -13,4 +14,8 @@
 ###20160310
 - 完成Android app. UI设计
 - 完成欢迎界面按键功能和蓝牙扫描和自动连接控制
+
+###20160311
+- resultController中蓝牙连接部分，简单通信协议
+- 优化两处RadioButton，均改为RadioGroup
 
