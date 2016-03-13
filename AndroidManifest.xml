@@ -28,11 +28,6 @@
             </intent-filter>
         </activity>
 
-        <!--<activity android:name="chinomarsrs.bccAndroidViewer.About"-->
-        <!--android:label="@string/txt_btn_about">-->
-        <!---->
-        <!--</activity>-->
-
         <activity
                 android:name="com.chinomars.bccAndroidViewer.ResultController"
                 android:label="@string/app_name"

@@ -9,7 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import android.graphics.Color;
 import android.widget.*;
+
 import com.chinomars.bccAndroidViewerCommon.Common;
 
 import android.app.Activity;
@@ -22,8 +24,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-//import android.net.Uri;
+//import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;

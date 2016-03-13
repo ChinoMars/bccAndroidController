@@ -13,6 +13,7 @@ import android.os.Message;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.*;
 
 import com.chinomars.bccAndroidViewerCommon.Common;
@@ -56,6 +57,7 @@ public class ResultController extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.result);
 
         curveDrawer = (ScrollView) this.findViewById(R.id.curve_drawer);
@@ -105,23 +107,23 @@ public class ResultController extends Activity {
         intent.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         intent.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 
-//        registerReceiver(connectDevices, intent);
+        registerReceiver(connectDevices, intent);
 
         mHandler.sendEmptyMessageDelayed(Common.MESSAGE_CONNECT, 1000);
     }
 
-//    private BroadcastReceiver connectDevices = new BroadcastReceiver() {
-////        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            String action = intent.getAction();
-//            Log.d(Common.TAG, "Receiver:" + action);
-//            if(action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)){
-//
-//            } else if(action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
-//
-//            }
-//        }
-//    };
+    private BroadcastReceiver connectDevices = new BroadcastReceiver() {
+//        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d(Common.TAG, "Receiver:" + action);
+            if(action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)){
+
+            } else if(action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
+
+            }
+        }
+    };
 
     public final Handler mHandler = new Handler() {
         @Override
@@ -180,7 +182,6 @@ public class ResultController extends Activity {
                                         Thread.sleep(1000);
                                         continue;
                                     }
-
                                     mHandler.obtainMessage(Common.MESSAGE_RECV, nNeed, -1, null).sendToTarget();
 
                                 } catch(Exception e){
@@ -213,16 +214,19 @@ public class ResultController extends Activity {
                         mmInStream = null;
                         mmOutStream = null;
                         btSocket = null;
-                        bConnect = null;
+                        bConnect = false;
 
                         // TODO Button apperance Proc
+
                     }
                     break;
                 case Common.MESSAGE_WRITE:
                     // TODO if need write
+
                     break;
                 case Common.MESSAGE_READ:
                     // TODO if need read
+
                     break;
                 case Common.MESSAGE_RECV:
                     break;
@@ -231,9 +235,13 @@ public class ResultController extends Activity {
 
     };
 
-    private void addLog(String log) {
-        tvLog.append(log);
-        curveDrawer.post(() -> curveDrawer.fullScroll(ScrollView.FOCUS_DOWN));
+    public void addLog(String str) {
+        tvLog.append(str + "\n");
+        curveDrawer.post(new Runnable() {
+            public void run() {
+                curveDrawer.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
     }
 
 
@@ -290,13 +298,13 @@ public class ResultController extends Activity {
         @Override
         public void onClick(View v) {
             if(v == btnMeasure) {
-                // TODO
+                // TODO send MEASURE COMMAND
             }
             else if(v == btnParamSetter) {
                 // TODO 用户设置保存数据的命名格式
             }
             else if(v == btnSaveData) {
-                // TODO
+                // TODO Save Data
             }
         }
     }
