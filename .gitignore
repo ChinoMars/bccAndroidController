@@ -1,7 +1,9 @@
 # license
 LICENse
 
-# auto-gen file
+# auto-gen direction
 gen
 out
 
+# other files
+.idea
