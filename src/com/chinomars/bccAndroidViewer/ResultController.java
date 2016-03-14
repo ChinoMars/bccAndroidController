@@ -17,10 +17,7 @@ import android.widget.*;
 
 import com.chinomars.bccAndroidViewerCommon.Common;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.util.Formatter;
+import java.io.*;
 import java.util.UUID;
 
 /**
@@ -40,7 +37,7 @@ public class ResultController extends Activity {
     BluetoothAdapter btAdapt = null;
     BluetoothSocket btSocket = null;
 
-    int rangeMode = Common.MEASURE_RANGE_UNKNOWN;
+    int rangeMode = Common.MEASURE_RANGE_UNKNOW;
     int mCnt = 0, mLoss = 0, mDl = 0, mN = 0;
     int[] mCurveData = new int [Common.CURVE_LEN];
 
@@ -51,6 +48,7 @@ public class ResultController extends Activity {
     int nNeed = 0;
     byte[] bRecv = new byte[1024];
     int nRecved = 0;
+    Boolean canUpdateResult = false;
     String fileName = null; // set the file name to save
 
     @Override
@@ -198,14 +196,24 @@ public class ResultController extends Activity {
             if (mmOutStream == null) {
                 return;
             }
-            nNeed = Common.RESULT_DATA_LEN;
-            nRecved = 0;
+//            nNeed = Common.RESULT_DATA_LEN;
+            // nNeed = 10; // for debug
+            // nRecved = 0;
             mmOutStream.write(sendCommand);
             addLog("发送开始测量指令");
+
+            canUpdateResult = true;
+
         } catch(Exception e) {
             Toast.makeText(ResultController.this, "发送命令失败", 1000).show();
+            return;
         }
 
+    }
+
+    private void mSaveData(){
+        // FILE METHOD
+//        File file = new File(, )
     }
 
     // Button Event Overrider
@@ -213,7 +221,7 @@ public class ResultController extends Activity {
         @Override
         public void onClick(View v){
             if (v == btnMeasure) {
-                if (rangeMode == Common.MEASURE_RANGE_UNKNOWN){
+                if (rangeMode == Common.MEASURE_RANGE_UNKNOW){
                     Toast.makeText(ResultController.this, "请先选择测量范围", 1000).show();
                     return;
                 }
@@ -246,10 +254,8 @@ public class ResultController extends Activity {
                     showParamSetDialog();
                     
                 }
-
                 // TODO SQLite or File
-                
-
+                mSaveData();
             }
         }
     }
@@ -313,32 +319,35 @@ public class ResultController extends Activity {
                         @Override
                         public void run() {
                             byte[] bufRev = new byte[1024];
-                            int nRev = 0;
+                            int nRecv = 0;
                             while(bConnect) {
                                 try {
                                     Log.e(Common.TAG, "Start Recv" + String.valueOf(mmInStream.available()));
-                                    nRev = mmInStream.read(bufRev);
-                                    if(nRev < 1){
+                                    nRecv = mmInStream.read(bufRev);
+                                    if (nRecv < 1) {
                                         Log.e(Common.TAG, "Recving Short");
                                         Thread.sleep(1000);
                                         continue;
                                     }
-                                    System.arraycopy(bufRev, 0, bRecv, nRecved, nRev);
-                                    Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
-                                    nRecved += nRev;
-                                    addLog(String.valueOf(nRecved) + "/" + String.valueOf(nNeed) + "received");
-                                    if(nRecved < nNeed){
-                                        Thread.sleep(1000);
-                                        continue;
-                                    }
-                                    mHandler.obtainMessage(Common.MESSAGE_RECV, nNeed, -1, null).sendToTarget();
 
-                                } catch(Exception e){
+                                    byte[] nPacket = new byte[nRecv];
+                                    System.arraycopy(bufRev, 0, nPacket, 0, nRecv);
+                                    Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
+                                    nRecved += nRecv;
+                                    canUpdateResult = true;
+                                    if (nRecved < nNeed) {
+                                        Thread.sleep(1000);
+                                    }
+
+                                    mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
+
+                                } catch (Exception e) {
                                     Log.e(Common.TAG, "Recv thread:" + e.getMessage());
                                     mHandler.sendEmptyMessage(Common.MESSAGE_EXCEPTION_RECV);
                                     break;
                                 }
                             }
+
                             Log.e(Common.TAG, "Exit while");
                         }
                     }).start();
@@ -381,31 +390,10 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
-                    Boolean bOn = false;
-                    String strRecv = bytesToString(bRecv, msg.arg1);
+                    byte[] bBuf = (byte[]) msg.obj;
+                    String strRecv = bytesToString(bBuf, msg.arg1);
                     addLog("接收数据: " + strRecv);
 
-                    addLog("接收到了噢 by Chino"); // debug
-
-                    // TODO modify the function of Recv
-                    if (msg.arg1 == 9) {
-                        if (strRecv.indexOf("OK+Set:") != 0) {
-                            addLog("接收数据错误" + String.valueOf(strRecv.indexOf("OK+Set:")));
-                            return;
-                        }
-                        if (strRecv.charAt(strRecv.length() - 1) == '1') {
-                            bOn = true; // set buttons enable
-                        }
-                        switch (strRecv.charAt(strRecv.length() - 2)){
-                            // TODO what to do wiz Button apperance?
-                        }
-                    } else{
-                        if (strRecv.indexOf("OK+Set:") != 0) {
-                            addLog("接收数据错误" + String.valueOf(strRecv.indexOf("OK+PIO:")));
-                            return;
-                        }
-                        // TODO what to do wiz Button apperance
-                    }
                     break;
                 case Common.MESSAGE_TOAST:
                     Toast.makeText(getApplicationContext(), 
@@ -491,6 +479,7 @@ public class ResultController extends Activity {
             tvTitle.setText(Common.GXC_MODE_TITLE);
         }
     }
+
 }
 
 
