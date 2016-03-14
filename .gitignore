@@ -1,5 +1,5 @@
 # license
-LICENse
+LICENSE
 
 # auto-gen direction
 gen
@@ -7,3 +7,4 @@ out
 
 # other files
 .idea
+.iml

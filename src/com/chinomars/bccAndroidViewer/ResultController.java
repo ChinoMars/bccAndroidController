@@ -1,17 +1,16 @@
 package com.chinomars.bccAndroidViewer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.*;
@@ -28,7 +27,6 @@ import java.util.UUID;
  * Created by Chino on 3/7/16.
  */
 public class ResultController extends Activity {
-//    public static String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
     private InputStream mmInStream;
     private OutputStream mmOutStream;
 
@@ -39,12 +37,12 @@ public class ResultController extends Activity {
     RadioGroup rdiogRangeSetter;
     Button btnMeasure, btnParamSetter, btnSaveData;
 
-    int rangeMode = Common.MEASURE_RANGE_UNKNOWN;
-    double valCnt = 0, valLoss = 0, valDl = 0;
-    double valN = 0;
-
     BluetoothAdapter btAdapt = null;
     BluetoothSocket btSocket = null;
+
+    int rangeMode = Common.MEASURE_RANGE_UNKNOWN;
+    int mCnt = 0, mLoss = 0, mDl = 0, mN = 0;
+    int[] mCurveData = new int [Common.CURVE_LEN];
 
     Boolean bConnect = false;
     String strName = null;
@@ -53,6 +51,7 @@ public class ResultController extends Activity {
     int nNeed = 0;
     byte[] bRecv = new byte[1024];
     int nRecved = 0;
+    String fileName = null; // set the file name to save
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +75,7 @@ public class ResultController extends Activity {
 
         btnMeasure = (Button) this.findViewById(R.id.btn_measure);
         btnMeasure.setOnClickListener(new ClickEvent());
+        btnMeasure.setEnabled(false);
         btnParamSetter = (Button) this.findViewById(R.id.btn_paramsetter);
         btnParamSetter.setOnClickListener(new ClickEvent());
         btnSaveData = (Button) this.findViewById(R.id.btn_savedata);
@@ -87,6 +87,7 @@ public class ResultController extends Activity {
         strName = bund.getString("NAME");
         strAddr = bund.getString("MAC");
         workMode = bund.getInt("MODE");
+
         mSetTitle(workMode);
         tvLog.append(strName + "......\n");
 
@@ -112,8 +113,149 @@ public class ResultController extends Activity {
         mHandler.sendEmptyMessageDelayed(Common.MESSAGE_CONNECT, 1000);
     }
 
+    @Override
+    protected void onDestroy()
+    {
+        this.unregisterReceiver(connectDevices);
+        Log.e(Common.TAG, "Free result");
+        super.onDestroy();
+    }
+
+    public void closeAndExit(){
+        if (bConnect){
+            bConnect = false;
+
+            try{
+                Thread.sleep(1000);
+                if (mmInStream != null) {
+                    mmInStream.close();
+                }
+                if (mmOutStream != null) {
+                    mmOutStream.close();
+                }
+                if (btSocket != null) {
+                    btSocket.close();
+                }
+
+            } catch (Exception e) {
+                Log.e(Common.TAG, "Close error...");
+                e.printStackTrace();
+            }
+        }
+        finish();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            closeAndExit();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+
+    private Boolean isFileNameLegal(String strFileName){
+        // TODO judge whether file name is legal
+        return true; // for debug
+    }
+
+    private void showParamSetDialog() {
+        final EditText etTmp = new EditText(this);
+        etTmp.setText(null);
+
+        new AlertDialog.Builder(this)
+            .setTitle("当前文件名为:" + fileName)
+            .setIcon(android.R.drawable.ic_dialog_info)
+            .setView(etTmp)
+            .setPositiveButton("确定", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which){
+                    String strTmp = etTmp.getText().toString();
+                    if (strTmp == null) {
+                        Toast.makeText(ResultController.this, "文件名不能为空！", 1000).show();
+                        return;
+                    }
+                    if (strTmp.equals("test")) {
+                        Toast.makeText(ResultController.this, "文件名不合法，请重新输入", 1000).show();
+                        return;
+                    }
+                    addLog("设置文件名为：" + strTmp);
+                    fileName = strTmp;
+                }
+            })
+            .setNegativeButton("取消", null).show();
+    }
+
+    // send message to BlueTooth
+    // TODO add BlueTooth setting Command [Priority Low]
+    public void send(byte[] sendCommand) {
+        if (!bConnect) {
+            return;
+        }
+
+        try{
+            if (mmOutStream == null) {
+                return;
+            }
+            nNeed = Common.RESULT_DATA_LEN;
+            nRecved = 0;
+            mmOutStream.write(sendCommand);
+            addLog("发送开始测量指令");
+        } catch(Exception e) {
+            Toast.makeText(ResultController.this, "发送命令失败", 1000).show();
+        }
+
+    }
+
+    // Button Event Overrider
+    class ClickEvent implements View.OnClickListener{
+        @Override
+        public void onClick(View v){
+            if (v == btnMeasure) {
+                if (rangeMode == Common.MEASURE_RANGE_UNKNOWN){
+                    Toast.makeText(ResultController.this, "请先选择测量范围", 1000).show();
+                    return;
+                }
+                if (bConnect) {
+                    edtCnt.setText("0.0");
+                    edtLoss.setText("0.0");
+                    edtDL.setText("0.0");
+                    byte[] sendTmp = new byte[8];
+                    // TODO add command data
+                    send(sendTmp);
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run(){
+//                            try{
+//                                Log.e(Common.TAG, "Start Send");
+//                                send(sendTmp);
+//                                addLog("try 发送数据成功 by Chino");
+//                            } catch(Exception e){
+//                                Toast.makeText(ResultController.this, "Thread 发送数据失败 by Chino", 1000).show();
+//                            }
+//                        }
+//                    }).start();
+                }
+
+            } else if (v == btnParamSetter) {
+                showParamSetDialog();
+
+            } else if (v == btnSaveData) {
+                if (fileName == null) {
+                    showParamSetDialog();
+                    
+                }
+
+                // TODO SQLite or File
+                
+
+            }
+        }
+    }
+
     private BroadcastReceiver connectDevices = new BroadcastReceiver() {
-//        @Override
+        @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(Common.TAG, "Receiver:" + action);
@@ -160,7 +302,13 @@ public class ResultController extends Activity {
                     break;
                 case Common.MESSAGE_CONNECT_SUCCEED:
                     addLog("连接成功");
+
+                    addLog("连接成功了噢 by Chino"); // debug
+
+                    Toast.makeText(ResultController.this, "蓝牙连接成功", 1000).show();
                     bConnect = true;
+                    btnMeasure.setEnabled(true);
+
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -178,6 +326,7 @@ public class ResultController extends Activity {
                                     System.arraycopy(bufRev, 0, bRecv, nRecved, nRev);
                                     Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
                                     nRecved += nRev;
+                                    addLog(String.valueOf(nRecved) + "/" + String.valueOf(nNeed) + "received");
                                     if(nRecved < nNeed){
                                         Thread.sleep(1000);
                                         continue;
@@ -197,6 +346,9 @@ public class ResultController extends Activity {
                 case Common.MESSAGE_EXCEPTION_RECV:
                 case Common.MESSAGE_CONNECT_LOST:
                     addLog("连接异常， 请退出本界面后重新连接");
+                    btnMeasure.setEnabled(false);
+
+                    addLog("出错了 by Chino"); // debug
                     try{
                         if(mmInStream != null){
                             mmInStream.close();
@@ -216,7 +368,7 @@ public class ResultController extends Activity {
                         btSocket = null;
                         bConnect = false;
 
-                        // TODO Button apperance Proc
+                        btnMeasure.setEnabled(false);
 
                     }
                     break;
@@ -229,11 +381,50 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
+                    Boolean bOn = false;
+                    String strRecv = bytesToString(bRecv, msg.arg1);
+                    addLog("接收数据: " + strRecv);
+
+                    addLog("接收到了噢 by Chino"); // debug
+
+                    // TODO modify the function of Recv
+                    if (msg.arg1 == 9) {
+                        if (strRecv.indexOf("OK+Set:") != 0) {
+                            addLog("接收数据错误" + String.valueOf(strRecv.indexOf("OK+Set:")));
+                            return;
+                        }
+                        if (strRecv.charAt(strRecv.length() - 1) == '1') {
+                            bOn = true; // set buttons enable
+                        }
+                        switch (strRecv.charAt(strRecv.length() - 2)){
+                            // TODO what to do wiz Button apperance?
+                        }
+                    } else{
+                        if (strRecv.indexOf("OK+Set:") != 0) {
+                            addLog("接收数据错误" + String.valueOf(strRecv.indexOf("OK+PIO:")));
+                            return;
+                        }
+                        // TODO what to do wiz Button apperance
+                    }
+                    break;
+                case Common.MESSAGE_TOAST:
+                    Toast.makeText(getApplicationContext(), 
+                        msg.getData().getString(Common.TOAST), 
+                        Toast.LENGTH_SHORT).show();
                     break;
             }
         }
 
     };
+
+    public static String bytesToString(byte[] b, int length) {
+        StringBuffer result = new StringBuffer("");
+        for (int i = 0; i < length; i++) {
+            result.append((char) (b[i]));
+        }
+
+        return result.toString();
+    }
 
     public void addLog(String str) {
         tvLog.append(str + "\n");
@@ -248,14 +439,16 @@ public class ResultController extends Activity {
     class SeekBarChangeEvent implements SeekBar.OnSeekBarChangeListener {
         @Override
         public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-            double result = Common.MIN_N + 0.001 * i;
-            if (result > Common.MAX_N || result < Common.MIN_N) {
+            int resTmp = Common.MIN_N + 10*i;
+            if (resTmp > Common.MAX_N || resTmp < Common.MIN_N) {
                 Toast.makeText(ResultController.this, "n应该在1.440～1.449之间", 1000).show();
                 return;
             }
 
-            setN(result);
-            String str = String.format("%.3f", result);
+            mN = resTmp;
+            double result = (double)resTmp / Common.SCALE;
+            addLog("当前折射率为: " + String.valueOf(result));
+            String str = String.format("%.5f", result);
             edtN.setText(str);
         }
 
@@ -288,25 +481,6 @@ public class ResultController extends Activity {
 
     private void setMeasureRange(int rangeCode) {
         rangeMode = rangeCode;
-    }
-
-    private void setN(double setVal) {
-        valN = setVal;
-    }
-
-    class ClickEvent implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            if(v == btnMeasure) {
-                // TODO send MEASURE COMMAND
-            }
-            else if(v == btnParamSetter) {
-                // TODO 用户设置保存数据的命名格式
-            }
-            else if(v == btnSaveData) {
-                // TODO Save Data
-            }
-        }
     }
 
     private void mSetTitle(int mode) {
