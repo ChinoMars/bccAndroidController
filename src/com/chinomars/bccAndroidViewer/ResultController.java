@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.*;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Message;
 import android.os.Handler;
 import android.util.Log;
@@ -18,12 +19,15 @@ import android.widget.*;
 import com.chinomars.bccAndroidViewerCommon.Common;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 /**
  * Created by Chino on 3/7/16.
  */
 public class ResultController extends Activity {
+    public static String FILE_SAVE_PATH = "/BccData";
     private InputStream mmInStream;
     private OutputStream mmOutStream;
 
@@ -50,7 +54,7 @@ public class ResultController extends Activity {
     byte[] bRecv = new byte[1024];
     int nRecved = 0;
     Boolean canUpdateResult = false;
-    String fileName = null; // set the file name to save
+    String mFileName = null; // set the file name to save
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,7 +171,7 @@ public class ResultController extends Activity {
         etTmp.setText(null);
 
         new AlertDialog.Builder(this)
-            .setTitle("当前文件名为:" + fileName)
+            .setTitle("当前文件名为:" + mFileName)
             .setIcon(android.R.drawable.ic_dialog_info)
             .setView(etTmp)
             .setPositiveButton("确定", new DialogInterface.OnClickListener(){
@@ -182,7 +186,7 @@ public class ResultController extends Activity {
                         return;
                     }
                     addLog("设置文件名为：" + strTmp);
-                    fileName = strTmp;
+                    mFileName = strTmp;
                 }
             })
             .setNegativeButton("取消", null).show();
@@ -215,7 +219,49 @@ public class ResultController extends Activity {
     }
 
     private void mSaveData(){
-        // FILE METHOD
+        // FILE METHOD save to SD card, absolute PATH: SDCARD/BccDATA/
+        try{
+            Log.e(Common.TAG, "error when saveing data" + mFileName);
+            File sdCardDir = Environment.getExternalStorageDirectory();
+            File saveDir = new File(sdCardDir.getAbsolutePath() + FILE_SAVE_PATH);
+            if (!saveDir.exists()) {
+                saveDir.mkdirs();
+            }
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+            Date curTime = new Date(System.currentTimeMillis());
+            String saveFileName = mFileName + formatter.format(curTime);
+
+            File svFile = new File(saveDir, saveFileName);
+            if (svFile.exists()){
+                Toast.makeText(ResultController.this, "文件已存在，请修改文件名", 1000).show();
+                return;
+            }
+
+            FileOutputStream fOutS = new FileOutputStream(svFile);
+            BufferedWriter oSWriter = new BufferedWriter(new OutputStreamWriter(fOutS));
+            oSWriter.write(mCnt);
+            oSWriter.write(mLoss);
+            oSWriter.write(mDl);
+
+            for (int i = 0; i < mRealCurveLen; ++i){
+                oSWriter.write(mCurveData[i]);
+            }
+
+            oSWriter.flush();
+            oSWriter.close();
+
+            addLog("数据保存到:" + svFile);
+
+
+        } catch (Exception e) {
+            Toast.makeText(ResultController.this, "数据保存错误", 1000).show();
+        }
+
+        // TODO SQLite Method
+
+
+
 
     }
 
@@ -260,6 +306,9 @@ public class ResultController extends Activity {
         } catch (Exception e){
             Toast.makeText(ResultController.this, "无法打开文件", 1000).show();
         }
+
+        // Read from SD card
+
 
     }
 
@@ -317,7 +366,7 @@ public class ResultController extends Activity {
                 showParamSetDialog();
 
             } else if (v == btnSaveData) {
-                if (fileName == null) {
+                if (mFileName == null) {
                     showParamSetDialog();
                     return;
                 }
