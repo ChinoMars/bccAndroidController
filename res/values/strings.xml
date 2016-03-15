@@ -18,8 +18,8 @@
     <string name="txt_dl">DL:</string>
     <string name="txt_metre">m</string>
     <string name="txt_n">n:</string>
-    <string name="txt_rdio_long">Long  (25m-300m)</string>
-    <string name="txt_rdio_mid">Mid    (2.5m-25m)</string>
+    <string name="txt_rdio_long">Long (25m-300m)</string>
+    <string name="txt_rdio_mid">Mid (2.5m-25m)</string>
     <string name="txt_rdio_short">Short (10cm-2.5m)</string>
     <string name="txt_rdio_bccMode">干涉型臂长差测量模式</string>
     <string name="txt_rdio_gxcMode">光纤链路长测量模式</string>

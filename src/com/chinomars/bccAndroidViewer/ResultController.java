@@ -413,9 +413,9 @@ public class ResultController extends Activity {
                     return;
                 }
                 if (bConnect) {
-                    edtCnt.setText("0.0");
-                    edtLoss.setText("0.0");
-                    edtDL.setText("0.0");
+                    edtCnt.setText("0.00000");
+                    edtLoss.setText("0.000000");
+                    edtDL.setText("0.000000");
                     byte[] sendTmp = new byte[8];
                     // TODO add command data
                     send(sendTmp);

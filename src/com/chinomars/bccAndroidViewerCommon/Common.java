@@ -25,7 +25,7 @@ public class Common {
     public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
     public static final String BIND_BT_MAC = "30:14:12:26:11:35";
     public static final int MIN_N = 14400; // mim n
-    public static final int MAX_N = 14490; // max n
+    public static final int MAX_N = 14700; // max n
     public static final double SCALE = 10000; // based on the MAX_N and MIN_N
     public static final int RESULT_DATA_LEN = 806; // 待定 3 short int + 400 short int
     public static final int MAX_CURVE_LEN = 400;
