@@ -21,6 +21,7 @@ import com.chinomars.bccAndroidViewerCommon.Common;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.EventListener;
 import java.util.UUID;
 
 /**
@@ -228,9 +229,10 @@ public class ResultController extends Activity {
                 saveDir.mkdirs();
             }
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-            Date curTime = new Date(System.currentTimeMillis());
-            String saveFileName = mFileName + formatter.format(curTime);
+//            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+//            Date curTime = new Date(System.currentTimeMillis());
+//            String saveFileName = mFileName + formatter.format(curTime);
+            String saveFileName = mFileName;
 
             File svFile = new File(saveDir, saveFileName);
             if (svFile.exists()){
@@ -308,6 +310,13 @@ public class ResultController extends Activity {
         }
 
         // Read from SD card
+        try{
+            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH);
+
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
 
     }
