@@ -24,6 +24,7 @@
     <string name="txt_rdio_bccMode">干涉型臂长差测量模式</string>
     <string name="txt_rdio_gxcMode">光纤链路长测量模式</string>
     <string name="txt_btn_save">保存数据</string>
+    <string name="txt_btn_read">读取数据</string>
     <string name="txt_btn_exit">退出</string>
     <string name="txt_title_bbc">干涉型臂长差测量软件</string>
     <string name="txt_title_gxc">光线链路长度测量软件</string>

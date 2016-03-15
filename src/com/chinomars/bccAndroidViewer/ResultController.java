@@ -32,14 +32,15 @@ public class ResultController extends Activity {
     EditText edtCnt, edtLoss, edtDL, edtN;
     SeekBar sekbN;
     RadioGroup rdiogRangeSetter;
-    Button btnMeasure, btnParamSetter, btnSaveData;
+    Button btnMeasure, btnParamSetter, btnSaveData, btnReadData;
 
     BluetoothAdapter btAdapt = null;
     BluetoothSocket btSocket = null;
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
     int mCnt = 0, mLoss = 0, mDl = 0, mN = 0;
-    int[] mCurveData = new int [Common.CURVE_LEN];
+    int[] mCurveData = new int [Common.MAX_CURVE_LEN];
+    int mRealCurveLen = 0;
 
     Boolean bConnect = false;
     String strName = null;
@@ -78,6 +79,8 @@ public class ResultController extends Activity {
         btnParamSetter.setOnClickListener(new ClickEvent());
         btnSaveData = (Button) this.findViewById(R.id.btn_savedata);
         btnSaveData.setOnClickListener(new ClickEvent());
+        btnReadData = (Button) this.findViewById(R.id.btn_readdata);
+        btnReadData.setOnClickListener(new ClickEvent());
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
         tvLog = (TextView) this.findViewById(R.id.tvLog);
@@ -213,7 +216,71 @@ public class ResultController extends Activity {
 
     private void mSaveData(){
         // FILE METHOD
-//        File file = new File(, )
+
+    }
+
+    private void mReadData() {
+        // Read test data 'testdata.txt'
+        try{
+            String fn = "testdata.txt";
+            Log.e(Common.TAG, "can't open file" + fn);
+            InputStreamReader inSReader = new InputStreamReader(getResources().getAssets().open(fn));
+            BufferedReader bufReader = new BufferedReader(inSReader);
+            String line = "";
+            int dataNum = 0;
+            if ((line = bufReader.readLine()) != null){
+                int dataTmp = Integer.parseInt(line);
+                mCnt = dataTmp;
+            }
+
+            if ((line = bufReader.readLine()) != null){
+                int dataTmp = Integer.parseInt(line);
+                mLoss = dataTmp;
+            }
+
+            if ((line = bufReader.readLine()) != null){
+                int dataTmp = Integer.parseInt(line);
+                mDl = dataTmp;
+            }
+
+            while((line = bufReader.readLine()) != null){
+                int dataTmp = Integer.parseInt(line);
+                if (dataNum + 1 < Common.MAX_CURVE_LEN){
+                    mCurveData[dataNum] = dataTmp;
+                    dataNum++;
+                } else{
+                    mRealCurveLen = dataNum;
+                    break;
+                }
+
+            }
+
+            addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl));
+
+        } catch (Exception e){
+            Toast.makeText(ResultController.this, "无法打开文件", 1000).show();
+        }
+
+    }
+
+    private void mUpdateDataUI() {
+        double datatmp = (double) mCnt / 10000;
+        String str = String.format("%.5f",datatmp);
+        edtCnt.setText(str);
+
+        datatmp = (double) mLoss / 10000;
+        str = String.format("%.5f", datatmp);
+        edtLoss.setText(str);
+
+        datatmp = (double) mDl / 10000;
+        str = String.format("%.5f", datatmp);
+        edtDL.setText(str);
+
+        addLog("数据更新成功");
+    }
+
+    private void mDrawCurve() {
+
     }
 
     // Button Event Overrider
@@ -252,10 +319,13 @@ public class ResultController extends Activity {
             } else if (v == btnSaveData) {
                 if (fileName == null) {
                     showParamSetDialog();
-                    
+                    return;
                 }
-                // TODO SQLite or File
                 mSaveData();
+            } else if (v == btnReadData) {
+                mReadData();
+                mUpdateDataUI();
+                mDrawCurve();
             }
         }
     }
@@ -474,17 +544,11 @@ public class ResultController extends Activity {
     private void mSetTitle(int mode) {
         if (mode == Common.MEASURE_MODE_BCC) {
             tvTitle.setText(Common.BCC_MODE_TITLE);
-        }
-        else if (mode == Common.MEASURE_MODE_GXC) {
+        } else if (mode == Common.MEASURE_MODE_GXC) {
             tvTitle.setText(Common.GXC_MODE_TITLE);
         }
     }
 
-    public void readFileOnline(String filePath) throws FileNotFoundException {
-        FileInputStream inFile = openFileInput(filePath);
-        
-
-    }
 }
 
 
