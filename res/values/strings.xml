@@ -30,6 +30,8 @@
     <string name="txt_title_gxc">光线链路长度测量软件</string>
     <string name="txt_btn_subN">减小</string>
     <string name="txt_btn_addN">增加</string>
+    <string name="txt_operator">操作人：</string>
+    <string name="txt_date">测量时间：</string>
 
     <string name="txt_splashContent">微波光子实验室出品</string>
 
