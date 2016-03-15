@@ -2,6 +2,7 @@ package com.chinomars.bccAndroidViewer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -29,6 +30,7 @@ import java.util.UUID;
  */
 public class ResultController extends Activity {
     public static String FILE_SAVE_PATH = "/BccData";
+    public static String LINE_END = "\r\n";
     private InputStream mmInStream;
     private OutputStream mmOutStream;
 
@@ -242,12 +244,13 @@ public class ResultController extends Activity {
 
             FileOutputStream fOutS = new FileOutputStream(svFile);
             BufferedWriter oSWriter = new BufferedWriter(new OutputStreamWriter(fOutS));
-            oSWriter.write(mCnt);
-            oSWriter.write(mLoss);
-            oSWriter.write(mDl);
+            oSWriter.write(String.valueOf(mCnt) + LINE_END);
+            oSWriter.write(String.valueOf(mLoss) + LINE_END);
+            oSWriter.write(String.valueOf(mDl) + LINE_END);
+            oSWriter.write(String.valueOf(mN) + LINE_END);
 
             for (int i = 0; i < mRealCurveLen; ++i){
-                oSWriter.write(mCurveData[i]);
+                oSWriter.write(String.valueOf(mCurveData[i]) + LINE_END);
             }
 
             oSWriter.flush();
@@ -267,7 +270,7 @@ public class ResultController extends Activity {
 
     }
 
-    private void mReadData() {
+    private Boolean mReadData() {
         // Read test data 'testdata.txt'
         try{
             String fn = "testdata.txt";
@@ -277,18 +280,19 @@ public class ResultController extends Activity {
             String line = "";
             int dataNum = 0;
             if ((line = bufReader.readLine()) != null){
-                int dataTmp = Integer.parseInt(line);
-                mCnt = dataTmp;
+                mCnt = Integer.parseInt(line);
             }
 
             if ((line = bufReader.readLine()) != null){
-                int dataTmp = Integer.parseInt(line);
-                mLoss = dataTmp;
+                 mLoss = Integer.parseInt(line);
             }
 
             if ((line = bufReader.readLine()) != null){
-                int dataTmp = Integer.parseInt(line);
-                mDl = dataTmp;
+                 mDl = Integer.parseInt(line);
+            }
+
+            if ((line = bufReader.readLine()) != null) {
+                mN = Integer.parseInt(line);
             }
 
             while((line = bufReader.readLine()) != null){
@@ -296,43 +300,104 @@ public class ResultController extends Activity {
                 if (dataNum + 1 < Common.MAX_CURVE_LEN){
                     mCurveData[dataNum] = dataTmp;
                     dataNum++;
-                } else{
+                } else {
                     mRealCurveLen = dataNum;
+                    addLog("到达数据容量");
                     break;
                 }
 
             }
 
-            addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl));
+            addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
+            for(int i = 0; i < mRealCurveLen/10; ++i){
+                addLog(String.valueOf(mCurveData[i]));
+            }
 
         } catch (Exception e){
             Toast.makeText(ResultController.this, "无法打开文件", 1000).show();
+            return false;
         }
+        return true;
 
         // Read from SD card
-        try{
-            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH);
-
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-
+//        if (!Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)){
+//            mAlert("本机未插入SD卡，无法读取");
+//            return false;
+//        }
+//        if (mFileName == null){
+//            Toast.makeText(ResultController.this, "文件不存在，请检查文件名", 1000).show();
+//            return false;
+//        }
+//        try{
+//            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH);
+//            if (!dir.exists()){
+//                Toast.makeText(ResultController.this, "尚未保存任何文件", 1000).show();
+//                return false;
+//            }
+//
+//            File file = new File(dir, mFileName);
+//            if (!file.exists()){
+//                mToastMaker("文件不存在，请确认文件名无误");
+//                return false;
+//            }
+//
+//            InputStreamReader inSReader = new InputStreamReader(new FileInputStream(file));
+//            BufferedReader bufReader = new BufferedReader(inSReader);
+//            String line = "";
+//            int dataNum = 0;
+//            if ((line = bufReader.readLine()) != null){
+//                mCnt = Integer.parseInt(line);
+//            }
+//
+//            if ((line = bufReader.readLine()) != null){
+//                mLoss = Integer.parseInt(line);
+//            }
+//
+//            if ((line = bufReader.readLine()) != null){
+//                mDl = Integer.parseInt(line);
+//            }
+//            if ((line = bufReader.readLine()) != null){
+//                mN = Integer.parseInt(line);
+//            }
+//
+//            while((line = bufReader.readLine()) != null){
+//                int dataTmp = Integer.parseInt(line);
+//                if (dataNum + 1 < Common.MAX_CURVE_LEN){
+//                    mCurveData[dataNum] = dataTmp;
+//                    dataNum++;
+//                } else{
+//                    mRealCurveLen = dataNum;
+//                    break;
+//                }
+//
+//            }
+//
+//            addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
+//
+//        } catch (Exception ioe){
+//            ioe.printStackTrace();
+//            return false;
+//        }
+//
+//        return true;
     }
 
     private void mUpdateDataUI() {
-        double datatmp = (double) mCnt / 10000;
+        double datatmp = (double) mCnt / Common.SCALE;
         String str = String.format("%.5f",datatmp);
         edtCnt.setText(str);
 
-        datatmp = (double) mLoss / 10000;
+        datatmp = (double) mLoss / Common.SCALE;
         str = String.format("%.5f", datatmp);
         edtLoss.setText(str);
 
-        datatmp = (double) mDl / 10000;
+        datatmp = (double) mDl / Common.SCALE;
         str = String.format("%.5f", datatmp);
         edtDL.setText(str);
+
+        datatmp = (double) mN / Common.SCALE;
+        str = String.format("%.5f", datatmp);
+        edtN.setText(str);
 
         addLog("数据更新成功");
     }
@@ -381,7 +446,7 @@ public class ResultController extends Activity {
                 }
                 mSaveData();
             } else if (v == btnReadData) {
-                mReadData();
+                if(!mReadData()) return;
                 mUpdateDataUI();
                 mDrawCurve();
             }
@@ -607,7 +672,26 @@ public class ResultController extends Activity {
         }
     }
 
+    public void mAlert(String alertContent){
+        new AlertDialog.Builder(this)
+            .setTitle(alertContent)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton("确定", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which){
+                    return;
+                }
+            }).show();
+    }
+
+    public void mToastMaker(String tosStr){
+        Toast.makeText(ResultController.this, tosStr, 1000).show();
+    }
+
 }
+
+
+
+
 
 
 
