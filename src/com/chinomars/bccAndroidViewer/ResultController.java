@@ -480,6 +480,11 @@ public class ResultController extends Activity {
         }
     }
 
+    public void readFileOnline(String filePath) throws FileNotFoundException {
+        FileInputStream inFile = openFileInput(filePath);
+        
+
+    }
 }
 
 
