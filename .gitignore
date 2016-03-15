@@ -2,9 +2,10 @@
 LICENSE
 
 # auto-gen direction
-gen
-out
+/gen
+/out
 
 # other files
-.idea
+/.idea
 .iml
+workspace.xml
