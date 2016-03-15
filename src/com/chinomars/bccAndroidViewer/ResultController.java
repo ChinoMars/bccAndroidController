@@ -301,20 +301,17 @@ public class ResultController extends Activity {
                     mCurveData[dataNum] = dataTmp;
                     dataNum++;
                 } else {
-                    mRealCurveLen = dataNum;
                     addLog("到达数据容量");
                     break;
                 }
 
             }
 
-            addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
-            for(int i = 0; i < mRealCurveLen/10; ++i){
-                addLog(String.valueOf(mCurveData[i]));
-            }
+            mRealCurveLen = dataNum;
+            addLog("读取" + String.valueOf(mRealCurveLen) + "个数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
 
         } catch (Exception e){
-            Toast.makeText(ResultController.this, "无法打开文件", 1000).show();
+            mToastMaker("无法打开文件");
             return false;
         }
         return true;
