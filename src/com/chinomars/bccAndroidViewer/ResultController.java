@@ -2,7 +2,6 @@ package com.chinomars.bccAndroidViewer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -12,17 +11,13 @@ import android.os.Environment;
 import android.os.Message;
 import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.Window;
+import android.view.*;
 import android.widget.*;
 
 import com.chinomars.bccAndroidViewerCommon.Common;
+import com.github.mikephil.charting.charts.LineChart;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.EventListener;
 import java.util.UUID;
 
 /**
@@ -34,7 +29,8 @@ public class ResultController extends Activity {
     private InputStream mmInStream;
     private OutputStream mmOutStream;
 
-    ScrollView curveDrawer;
+    LineChart mCurveDrawer;
+    ScrollView svLogger;
     TextView tvTitle, tvLog;
     EditText edtCnt, edtLoss, edtDL, edtN;
     SeekBar sekbN;
@@ -65,7 +61,10 @@ public class ResultController extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.result);
 
-        curveDrawer = (ScrollView) this.findViewById(R.id.curve_drawer);
+        mCurveDrawer = (LineChart) this.findViewById(R.id.curve_drawer);
+        mCurveDrawer.setOnLongClickListener(new LongClickEvent());
+        svLogger = (ScrollView) this.findViewById(R.id.sv_logger);
+        svLogger.setOnLongClickListener(new LongClickEvent());
 
         edtCnt = (EditText) this.findViewById(R.id.edt_cnt);
         edtDL = (EditText) this.findViewById(R.id.edt_dl);
@@ -91,23 +90,24 @@ public class ResultController extends Activity {
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
         tvLog = (TextView) this.findViewById(R.id.tvLog);
+
         Bundle bund = this.getIntent().getExtras();
         strName = bund.getString("NAME");
         strAddr = bund.getString("MAC");
         workMode = bund.getInt("MODE");
 
         mSetTitle(workMode);
-        tvLog.append(strName + "......\n");
+        addLog(strName + "......");
 
         btAdapt = BluetoothAdapter.getDefaultAdapter();
         if (btAdapt == null) {
-            tvLog.append("本机无蓝牙设备，连接失败\n");
+            addLog("本机无蓝牙设备，连接失败");
             finish();
             return;
         }
 
         if (btAdapt.getState() != BluetoothAdapter.STATE_ON) {
-            tvLog.append("本机蓝牙状态不正常，连接失败\n");
+            addLog("本机蓝牙状态不正常，连接失败");
             finish();
             return;
         }
@@ -181,11 +181,11 @@ public class ResultController extends Activity {
                 public void onClick(DialogInterface dialog, int which){
                     String strTmp = etTmp.getText().toString();
                     if (strTmp == null) {
-                        Toast.makeText(ResultController.this, "文件名不能为空！", 1000).show();
+                        mToastMaker("文件名不能为空！");
                         return;
                     }
                     if (strTmp.equals("test")) {
-                        Toast.makeText(ResultController.this, "文件名不合法，请重新输入", 1000).show();
+                        mToastMaker("文件名不合法，请重新输入");
                         return;
                     }
                     addLog("设置文件名为：" + strTmp);
@@ -215,7 +215,7 @@ public class ResultController extends Activity {
             canUpdateResult = true;
 
         } catch(Exception e) {
-            Toast.makeText(ResultController.this, "发送命令失败", 1000).show();
+            mToastMaker("发送命令失败");
             return;
         }
 
@@ -238,7 +238,7 @@ public class ResultController extends Activity {
 
             File svFile = new File(saveDir, saveFileName);
             if (svFile.exists()){
-                Toast.makeText(ResultController.this, "文件已存在，请修改文件名", 1000).show();
+                mToastMaker("文件已存在，请修改文件名");
                 return;
             }
 
@@ -260,7 +260,7 @@ public class ResultController extends Activity {
 
 
         } catch (Exception e) {
-            Toast.makeText(ResultController.this, "数据保存错误", 1000).show();
+            mToastMaker("数据保存错误");
         }
 
         // TODO SQLite Method
@@ -322,13 +322,13 @@ public class ResultController extends Activity {
 //            return false;
 //        }
 //        if (mFileName == null){
-//            Toast.makeText(ResultController.this, "文件不存在，请检查文件名", 1000).show();
+        // mToastMaker("文件不存在，请检查文件名");
 //            return false;
 //        }
 //        try{
 //            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH);
 //            if (!dir.exists()){
-//                Toast.makeText(ResultController.this, "尚未保存任何文件", 1000).show();
+        //    mToastMaker("尚未保存任何文件");
 //                return false;
 //            }
 //
@@ -404,18 +404,42 @@ public class ResultController extends Activity {
     }
 
     // Button Event Overrider
+    class LongClickEvent implements  View.OnLongClickListener{
+        @Override
+        public boolean onLongClick(View v){
+//            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            if(v == svLogger) {
+//                params.addRule(RelativeLayout.BELOW, R.id.curve_drawer);
+//                mRelSwitcer.addView(svLogger, params);
+                svLogger.setVisibility(View.INVISIBLE);
+                tvLog.setVisibility(View.INVISIBLE);
+                return true;
+
+            } else if(v == mCurveDrawer) {
+//                params.addRule(RelativeLayout.BELOW, R.id.sv_logger);
+//                mRelSwitcer.addView(mCurveDrawer, params);
+                svLogger.setVisibility(View.VISIBLE);
+                tvLog.setVisibility(View.VISIBLE);
+                return true;
+            }
+
+            return false;
+        }
+
+    }
+
     class ClickEvent implements View.OnClickListener{
         @Override
         public void onClick(View v){
             if (v == btnMeasure) {
                 if (rangeMode == Common.MEASURE_RANGE_UNKNOW){
-                    Toast.makeText(ResultController.this, "请先选择测量范围", 1000).show();
+                    mToastMaker("请先选择测量范围");
                     return;
                 }
                 if (bConnect) {
                     edtCnt.setText("0.00000");
-                    edtLoss.setText("0.000000");
-                    edtDL.setText("0.000000");
+                    edtLoss.setText("0.00000");
+                    edtDL.setText("0.00000");
                     byte[] sendTmp = new byte[8];
                     // TODO add command data
                     send(sendTmp);
@@ -427,7 +451,7 @@ public class ResultController extends Activity {
 //                                send(sendTmp);
 //                                addLog("try 发送数据成功 by Chino");
 //                            } catch(Exception e){
-//                                Toast.makeText(ResultController.this, "Thread 发送数据失败 by Chino", 1000).show();
+                            //    mToastMaker("Thread 发送数据失败 by Chino");
 //                            }
 //                        }
 //                    }).start();
@@ -499,9 +523,9 @@ public class ResultController extends Activity {
                 case Common.MESSAGE_CONNECT_SUCCEED:
                     addLog("连接成功");
 
-                    addLog("连接成功了噢 by Chino"); // debug
+                    // addLog("连接成功了噢 by Chino"); // debug
 
-                    Toast.makeText(ResultController.this, "蓝牙连接成功", 1000).show();
+                    mToastMaker("蓝牙连接成功");
                     bConnect = true;
                     btnMeasure.setEnabled(true);
 
@@ -547,7 +571,7 @@ public class ResultController extends Activity {
                     addLog("连接异常， 请退出本界面后重新连接");
                     btnMeasure.setEnabled(false);
 
-                    addLog("出错了 by Chino"); // debug
+                    // addLog("出错了 by Chino"); // debug
                     try{
                         if(mmInStream != null){
                             mmInStream.close();
@@ -606,9 +630,9 @@ public class ResultController extends Activity {
 
     public void addLog(String str) {
         tvLog.append(str + "\n");
-        curveDrawer.post(new Runnable() {
+        svLogger.post(new Runnable() {
             public void run() {
-                curveDrawer.fullScroll(ScrollView.FOCUS_DOWN);
+                svLogger.fullScroll(ScrollView.FOCUS_DOWN);
             }
         });
     }
@@ -619,7 +643,7 @@ public class ResultController extends Activity {
         public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
             int resTmp = Common.MIN_N + 10*i;
             if (resTmp > Common.MAX_N || resTmp < Common.MIN_N) {
-                Toast.makeText(ResultController.this, "n应该在1.440～1.449之间", 1000).show();
+                mToastMaker("n应该在1.440～1.470之间");
                 return;
             }
 
