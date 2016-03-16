@@ -6,6 +6,6 @@ LICENSE
 /out
 
 # other files
-/.idea
+/.idea/workspace.xml
 .iml
 workspace.xml
