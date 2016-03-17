@@ -89,7 +89,7 @@ public class ResultController extends Activity {
         btnReadData.setOnClickListener(new ClickEvent());
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
-        tvLog = (TextView) this.findViewById(R.id.tvLog);
+        tvLog = (TextView) this.findViewById(R.id.tv_Log);
 
         Bundle bund = this.getIntent().getExtras();
         strName = bund.getString("NAME");
@@ -407,17 +407,12 @@ public class ResultController extends Activity {
     class LongClickEvent implements  View.OnLongClickListener{
         @Override
         public boolean onLongClick(View v){
-//            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             if(v == svLogger) {
-//                params.addRule(RelativeLayout.BELOW, R.id.curve_drawer);
-//                mRelSwitcer.addView(svLogger, params);
                 svLogger.setVisibility(View.INVISIBLE);
                 tvLog.setVisibility(View.INVISIBLE);
                 return true;
 
             } else if(v == mCurveDrawer) {
-//                params.addRule(RelativeLayout.BELOW, R.id.sv_logger);
-//                mRelSwitcer.addView(mCurveDrawer, params);
                 svLogger.setVisibility(View.VISIBLE);
                 tvLog.setVisibility(View.VISIBLE);
                 return true;
@@ -571,7 +566,6 @@ public class ResultController extends Activity {
                     addLog("连接异常， 请退出本界面后重新连接");
                     btnMeasure.setEnabled(false);
 
-                    // addLog("出错了 by Chino"); // debug
                     try{
                         if(mmInStream != null){
                             mmInStream.close();
