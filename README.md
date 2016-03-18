@@ -31,8 +31,11 @@
 - ~~文件保存出错，调试中 -> 已解决~~
 - 文件读写完成 **并没有哈哈哈**
 
-###20150316
+###20160316
 - 增加`lib`：MPAndroidChart-2.0.9，Thank PhilJay for [PhilJay/MPAndroidChart](https://github.com/PhilJay/MPAndroidChart)
+
+###20160317
+- 某著名游戏公司面试挂归，今天我什么都不想干^^
 
 
 ###需求更新

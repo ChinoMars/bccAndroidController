@@ -16,8 +16,13 @@ import android.widget.*;
 
 import com.chinomars.bccAndroidViewerCommon.Common;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -400,6 +405,20 @@ public class ResultController extends Activity {
     }
 
     private void mDrawCurve() {
+        LineData data;
+        ArrayList<String> xVal = new ArrayList<>();
+        LineDataSet dataSet;
+        ArrayList<Entry> yVal = new ArrayList<>();
+
+        for(int i = 0; i < mRealCurveLen; ++i){
+            yVal.add(new Entry(mCurveData[i], i));
+            xVal.add(String.valueOf(i+1));
+        }
+
+        dataSet = new LineDataSet(yVal, "curve label");
+        data = new LineData(xVal, dataSet);
+        mCurveDrawer.setData(data);
+        mCurveDrawer.animateY(3000);
 
     }
 
