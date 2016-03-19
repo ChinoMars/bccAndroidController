@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/txt_operator"
+        />
+        <EditText android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="@string/txt_edt_hint"
+                  android:id="@+id/edt_operator"
+        />
+    </TableRow>
+
+    <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_product_type"
+        />
+        <EditText android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_edt_hint"
+                  android:id="@+id/edt_product_type"
+        />
+
+        <TextView android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_product_id"
+        />
+        <EditText android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_edt_hint"
+                  android:id="@+id/edt_product_id"
+        />
+    </TableRow>
+
+    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+        <TextView android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_produce_date"
+        />
+        <EditText android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_edt_hint"
+                  android:id="@+id/edt_produce_date"
+        />
+
+        <TextView android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_measure_date"
+        />
+        <EditText android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_edt_hint"
+                  android:id="@+id/edt_measure_date"
+        />
+    </TableRow>
+
+    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+        <TextView android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_comment"
+        />
+        <EditText android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:text="@string/txt_edt_hint"
+                  android:id="@+id/edt_comment"
+        />
+    </TableRow>
+
+</LinearLayout>

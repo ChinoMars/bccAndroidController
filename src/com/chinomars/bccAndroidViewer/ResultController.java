@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.os.Handler;
+import android.preference.DialogPreference;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -175,29 +176,42 @@ public class ResultController extends Activity {
     }
 
     private void showParamSetDialog() {
-        final EditText etTmp = new EditText(this);
-        etTmp.setText(null);
+//        final EditText etTmp = new EditText(this);
+//        etTmp.setText(null);
+//
+//        new AlertDialog.Builder(this)
+//            .setTitle("当前文件名为:" + mFileName)
+//            .setIcon(android.R.drawable.ic_dialog_info)
+//            .setView(etTmp)
+//            .setPositiveButton("确定", new DialogInterface.OnClickListener(){
+//                public void onClick(DialogInterface dialog, int which){
+//                    String strTmp = etTmp.getText().toString();
+//                    if (strTmp == null) {
+//                        mToastMaker("文件名不能为空！");
+//                        return;
+//                    }
+//                    if (strTmp.equals("test")) {
+//                        mToastMaker("文件名不合法，请重新输入");
+//                        return;
+//                    }
+//                    addLog("设置文件名为：" + strTmp);
+//                    mFileName = strTmp;
+//                }
+//            })
+//            .setNegativeButton("取消", null).show();
+
+        // new implements on param setter
 
         new AlertDialog.Builder(this)
-            .setTitle("当前文件名为:" + mFileName)
-            .setIcon(android.R.drawable.ic_dialog_info)
-            .setView(etTmp)
-            .setPositiveButton("确定", new DialogInterface.OnClickListener(){
+            .setTitle("请输入本次测量信息")
+            .setContentView(R.layout.parameditor)
+            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which){
-                    String strTmp = etTmp.getText().toString();
-                    if (strTmp == null) {
-                        mToastMaker("文件名不能为空！");
-                        return;
-                    }
-                    if (strTmp.equals("test")) {
-                        mToastMaker("文件名不合法，请重新输入");
-                        return;
-                    }
-                    addLog("设置文件名为：" + strTmp);
-                    mFileName = strTmp;
+                    // TODO deal with the Measure Info
                 }
             })
-            .setNegativeButton("取消", null).show();
+            .setNegativeButton("取消", null)
+            .show();
     }
 
     // send message to BlueTooth
