@@ -2,8 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
-    <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
+              android:layout_height="match_parent"
+              android:id="@+id/layout_paramsetter"
+>
+    <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+    >
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/txt_operator"
@@ -15,7 +22,12 @@
         />
     </TableRow>
 
-    <TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
+    <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+    >
         <TextView android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
                   android:text="@string/txt_product_type"
@@ -37,7 +49,12 @@
         />
     </TableRow>
 
-    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+    <TableRow
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+    >
         <TextView android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
                   android:text="@string/txt_produce_date"
@@ -59,7 +76,12 @@
         />
     </TableRow>
 
-    <TableRow android:layout_height="wrap_content" android:layout_width="wrap_content">
+    <TableRow
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+    >
         <TextView android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
                   android:text="@string/txt_comment"

@@ -60,6 +60,7 @@ public class ResultController extends Activity {
     int nRecved = 0;
     Boolean canUpdateResult = false;
     String mFileName = null; // set the file name to save
+    String mOperator = null, m
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,9 +203,12 @@ public class ResultController extends Activity {
 
         // new implements on param setter
 
+        LayoutInflater inflater = getLayoutInflater();
+        View paramLayout = inflater.inflate(R.layout.parameditor, (ViewGroup) findViewById(R.id.layout_paramsetter));
+
         new AlertDialog.Builder(this)
             .setTitle("请输入本次测量信息")
-            .setContentView(R.layout.parameditor)
+            .setView(paramLayout)
             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which){
                     // TODO deal with the Measure Info
