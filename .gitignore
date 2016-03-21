@@ -9,3 +9,4 @@ LICENSE
 /.idea/workspace.xml
 .iml
 workspace.xml
+.tags*
