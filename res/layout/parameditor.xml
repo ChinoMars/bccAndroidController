@@ -17,7 +17,7 @@
         />
         <EditText android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:text="@string/txt_edt_hint"
+                  android:hint="@string/txt_edt_hint"
                   android:id="@+id/edt_operator"
         />
     </TableRow>
@@ -34,7 +34,7 @@
         />
         <EditText android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
-                  android:text="@string/txt_edt_hint"
+                  android:hint="@string/txt_edt_hint"
                   android:id="@+id/edt_product_type"
         />
 
@@ -44,7 +44,7 @@
         />
         <EditText android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
-                  android:text="@string/txt_edt_hint"
+                  android:hint="@string/txt_edt_hint"
                   android:id="@+id/edt_product_id"
         />
     </TableRow>
@@ -61,7 +61,7 @@
         />
         <EditText android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
-                  android:text="@string/txt_edt_hint"
+                  android:hint="@string/txt_edt_hint"
                   android:id="@+id/edt_produce_date"
         />
 
@@ -71,7 +71,7 @@
         />
         <EditText android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
-                  android:text="@string/txt_edt_hint"
+                  android:hint="@string/txt_edt_hint"
                   android:id="@+id/edt_measure_date"
         />
     </TableRow>
@@ -88,7 +88,7 @@
         />
         <EditText android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
-                  android:text="@string/txt_edt_hint"
+                  android:hint="@string/txt_edt_hint"
                   android:id="@+id/edt_comment"
         />
     </TableRow>

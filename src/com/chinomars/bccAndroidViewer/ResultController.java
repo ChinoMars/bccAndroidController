@@ -10,7 +10,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.os.Handler;
-import android.preference.DialogPreference;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -22,9 +23,10 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.UUID;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Created by Chino on 3/7/16.
@@ -37,7 +39,8 @@ public class ResultController extends Activity {
 
     LineChart mCurveDrawer;
     ScrollView svLogger;
-    TextView tvTitle, tvLog;
+    TextView tvTitle, tvLog, tvDl;
+    TextView tvOperartor, tvMeasureDate;
     EditText edtCnt, edtLoss, edtDL, edtN;
     SeekBar sekbN;
     RadioGroup rdiogRangeSetter;
@@ -51,6 +54,7 @@ public class ResultController extends Activity {
     int[] mCurveData = new int [Common.MAX_CURVE_LEN];
     int mRealCurveLen = 0;
 
+    Boolean isShowChart = true;
     Boolean bConnect = false;
     String strName = null;
     String strAddr = null;
@@ -60,7 +64,7 @@ public class ResultController extends Activity {
     int nRecved = 0;
     Boolean canUpdateResult = false;
     String mFileName = null; // set the file name to save
-    String mOperator = null, m
+    String mOperator = null, mProdType = null, mProdId = null, mProduceDate = null, mMeasureDate = null, mComment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +75,15 @@ public class ResultController extends Activity {
         mCurveDrawer = (LineChart) this.findViewById(R.id.curve_drawer);
         mCurveDrawer.setOnLongClickListener(new LongClickEvent());
         svLogger = (ScrollView) this.findViewById(R.id.sv_logger);
-        svLogger.setOnLongClickListener(new LongClickEvent());
+//        svLogger.setOnLongClickListener(new LongClickEvent());
+        tvLog = (TextView) this.findViewById(R.id.tv_Log);
+        tvLog.setOnClickListener(new ClickEvent());
 
         edtCnt = (EditText) this.findViewById(R.id.edt_cnt);
         edtDL = (EditText) this.findViewById(R.id.edt_dl);
         edtLoss = (EditText) this.findViewById(R.id.edt_loss);
         edtN = (EditText) this.findViewById(R.id.edt_n);
-        edtN.clearFocus();
+        edtN.addTextChangedListener(textWatcher);
 
         sekbN = (SeekBar) this.findViewById(R.id.skb_n);
         sekbN.setOnSeekBarChangeListener(new SeekBarChangeEvent());
@@ -96,7 +102,9 @@ public class ResultController extends Activity {
         btnReadData.setOnClickListener(new ClickEvent());
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
-        tvLog = (TextView) this.findViewById(R.id.tv_Log);
+        tvDl = (TextView) this.findViewById(R.id.txt_dl);
+        tvOperartor = (TextView) this.findViewById(R.id.txt_operator);
+        tvMeasureDate = (TextView) this.findViewById(R.id.txt_date);
 
         Bundle bund = this.getIntent().getExtras();
         strName = bund.getString("NAME");
@@ -176,6 +184,24 @@ public class ResultController extends Activity {
         return true; // for debug
     }
 
+    private Boolean isOperatorValid(String str){
+        return true;
+    }
+
+    private Boolean isProductInfoValid(String proNum){
+        // low case alpha + num
+        return true;
+    }
+
+    public void mSetParamSetterInfo(View v){
+        ((EditText) v.findViewById(R.id.edt_operator)).setText(mOperator);
+        ((EditText) v.findViewById(R.id.edt_product_type)).setText(mProdType);
+        ((EditText) v.findViewById(R.id.edt_product_id)).setText(mProdId);
+        ((EditText) v.findViewById(R.id.edt_produce_date)).setText(mProduceDate);
+        ((EditText) v.findViewById(R.id.edt_measure_date)).setText(mMeasureDate);
+        ((EditText) v.findViewById(R.id.edt_comment)).setText(mComment);
+    }
+
     private void showParamSetDialog() {
 //        final EditText etTmp = new EditText(this);
 //        etTmp.setText(null);
@@ -205,6 +231,9 @@ public class ResultController extends Activity {
 
         LayoutInflater inflater = getLayoutInflater();
         View paramLayout = inflater.inflate(R.layout.parameditor, (ViewGroup) findViewById(R.id.layout_paramsetter));
+        if (mOperator != null && mProdType != null && mProdId != null && mMeasureDate != null){
+            mSetParamSetterInfo(paramLayout);
+        }
 
         new AlertDialog.Builder(this)
             .setTitle("请输入本次测量信息")
@@ -212,6 +241,43 @@ public class ResultController extends Activity {
             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which){
                     // TODO deal with the Measure Info
+                    EditText edtTmp = (EditText) paramLayout.findViewById(R.id.edt_operator);
+                    String strTmp = edtTmp.getText().toString();
+                    if (isOperatorValid(strTmp)){
+                        mOperator = strTmp;
+                    } else {
+                        mToastMaker("操作人信息不合法，请重新设置");
+                        return;
+                    }
+
+                    edtTmp = (EditText) paramLayout.findViewById(R.id.edt_product_type);
+                    strTmp = edtTmp.getText().toString();
+                    if (isProductInfoValid(strTmp)){
+                        mProdType = strTmp.toLowerCase();
+                    } else {
+                        mToastMaker("产品型号不合法，请重新输入");
+                        return;
+                    }
+
+                    edtTmp = (EditText) paramLayout.findViewById(R.id.edt_product_id);
+                    strTmp = edtTmp.getText().toString();
+                    if (isProductInfoValid(strTmp)){
+                        mProdId = strTmp.toLowerCase();
+                    } else {
+                        mToastMaker("产品编号不合法，请重新输入");
+                        return;
+                    }
+
+                    mProduceDate = ((EditText) paramLayout.findViewById(R.id.edt_produce_date)).getText().toString();
+                    mMeasureDate = ((EditText) paramLayout.findViewById(R.id.edt_measure_date)).getText().toString();
+                    mComment = ((EditText) paramLayout.findViewById(R.id.edt_measure_date)).getText().toString();
+
+                    addLog("测量信息为：" + mOperator + mProdType + mProdId + mProduceDate + mMeasureDate + mComment);
+
+                    tvOperartor.setText(Common.OPERATOR + mOperator);
+                    tvMeasureDate.setText(Common.MEASURE_TIME + mMeasureDate);
+
+
                 }
             })
             .setNegativeButton("取消", null)
@@ -302,16 +368,35 @@ public class ResultController extends Activity {
             BufferedReader bufReader = new BufferedReader(inSReader);
             String line = "";
             int dataNum = 0;
+            if ((line = bufReader.readLine()) != null) {
+                mOperator = line;
+            }
+            if ((line = bufReader.readLine()) != null) {
+                mProdType = line;
+            }
+            if ((line = bufReader.readLine()) != null) {
+                mProdId = line;
+            }
+            if ((line = bufReader.readLine()) != null) {
+                mProduceDate = line;
+            }
+            if ((line = bufReader.readLine()) != null) {
+                mMeasureDate = line;
+            }
+            if ((line = bufReader.readLine()) != null) {
+                mComment = line;
+            }
+
             if ((line = bufReader.readLine()) != null){
                 mCnt = Integer.parseInt(line);
             }
 
             if ((line = bufReader.readLine()) != null){
-                 mLoss = Integer.parseInt(line);
+                mLoss = Integer.parseInt(line);
             }
 
             if ((line = bufReader.readLine()) != null){
-                 mDl = Integer.parseInt(line);
+                mDl = Integer.parseInt(line);
             }
 
             if ((line = bufReader.readLine()) != null) {
@@ -419,6 +504,9 @@ public class ResultController extends Activity {
         str = String.format("%.5f", datatmp);
         edtN.setText(str);
 
+        tvOperartor.setText(Common.OPERATOR + mOperator);
+        tvMeasureDate.setText(Common.MEASURE_TIME + mMeasureDate);
+
         addLog("数据更新成功");
     }
 
@@ -444,14 +532,16 @@ public class ResultController extends Activity {
     class LongClickEvent implements  View.OnLongClickListener{
         @Override
         public boolean onLongClick(View v){
-            if(v == svLogger) {
-                svLogger.setVisibility(View.INVISIBLE);
-                tvLog.setVisibility(View.INVISIBLE);
-                return true;
-
-            } else if(v == mCurveDrawer) {
-                svLogger.setVisibility(View.VISIBLE);
-                tvLog.setVisibility(View.VISIBLE);
+//            if (v == svLogger || v == tvLog){
+//                svLogger.setVisibility(View.INVISIBLE);
+//                tvLog.setVisibility(View.INVISIBLE);
+//                mCurveDrawer.setVisibility(VISIBLE);
+//                return true;
+//            } else
+            if (v == mCurveDrawer) {
+                svLogger.setVisibility(VISIBLE);
+                tvLog.setVisibility(VISIBLE);
+                mCurveDrawer.setVisibility(View.INVISIBLE);
                 return true;
             }
 
@@ -502,9 +592,31 @@ public class ResultController extends Activity {
                 if(!mReadData()) return;
                 mUpdateDataUI();
                 mDrawCurve();
+            } else if (v == tvLog) {
+                svLogger.setVisibility(View.INVISIBLE);
+                tvLog.setVisibility(View.INVISIBLE);
+                mCurveDrawer.setVisibility(VISIBLE);
+
             }
         }
     }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            
+        }
+    };
 
     private BroadcastReceiver connectDevices = new BroadcastReceiver() {
         @Override
@@ -719,8 +831,10 @@ public class ResultController extends Activity {
     private void mSetTitle(int mode) {
         if (mode == Common.MEASURE_MODE_BCC) {
             tvTitle.setText(Common.BCC_MODE_TITLE);
+            tvDl.setText(Common.BCC_MODE_DL);
         } else if (mode == Common.MEASURE_MODE_GXC) {
             tvTitle.setText(Common.GXC_MODE_TITLE);
+            tvDl.setText(Common.GXC_MODE_L);
         }
     }
 

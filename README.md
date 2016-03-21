@@ -33,12 +33,15 @@ r# bccAndroidController
 
 ###20160316
 - 增加`lib`：MPAndroidChart-2.0.9，Thank PhilJay for [PhilJay/MPAndroidChart](https://github.com/PhilJay/MPAndroidChart)
-
+	nd
 ###20160317
 - 某著名游戏公司面试挂归，今天我什么都不想干^^
 
 ###20160320
 - 用户参数设置ui
+- 用户参数设置功能完善
+- 新的数据文件读取功能
+- 点击切换软件log和chart
 - 
 
 
