@@ -32,7 +32,7 @@ import static android.view.View.VISIBLE;
  * Created by Chino on 3/7/16.
  */
 public class ResultController extends Activity {
-    public static String FILE_SAVE_PATH = "/BccData";
+    public static String FILE_SAVE_PATH = "/BccData/";
     public static String LINE_END = "\r\n";
     private InputStream mmInStream;
     private OutputStream mmOutStream;
@@ -185,11 +185,12 @@ public class ResultController extends Activity {
     }
 
     private Boolean isOperatorValid(String str){
+        // TODO jude the operator name is legal
         return true;
     }
 
     private Boolean isProductInfoValid(String proNum){
-        // low case alpha + num
+        // TODO low case alpha + num
         return true;
     }
 
@@ -277,6 +278,10 @@ public class ResultController extends Activity {
                     tvOperartor.setText(Common.OPERATOR + mOperator);
                     tvMeasureDate.setText(Common.MEASURE_TIME + mMeasureDate);
 
+                    if (mFileName == null) {
+                        mFileName = mProdType;
+                    }
+
 
                 }
             })
@@ -315,15 +320,13 @@ public class ResultController extends Activity {
         try{
             Log.e(Common.TAG, "error when saveing data" + mFileName);
             File sdCardDir = Environment.getExternalStorageDirectory();
-            File saveDir = new File(sdCardDir.getAbsolutePath() + FILE_SAVE_PATH);
+            File saveDir = new File(sdCardDir.getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
             if (!saveDir.exists()) {
                 saveDir.mkdirs();
             }
 
-//            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-//            Date curTime = new Date(System.currentTimeMillis());
-//            String saveFileName = mFileName + formatter.format(curTime);
-            String saveFileName = mFileName;
+            File[] files = saveDir.listFiles();
+            String saveFileName = mFileName + String.valueOf(files.length + 1);
 
             File svFile = new File(saveDir, saveFileName);
             if (svFile.exists()){
@@ -333,6 +336,13 @@ public class ResultController extends Activity {
 
             FileOutputStream fOutS = new FileOutputStream(svFile);
             BufferedWriter oSWriter = new BufferedWriter(new OutputStreamWriter(fOutS));
+            oSWriter.write(mOperator + LINE_END);
+            oSWriter.write(mProdType + LINE_END);
+            oSWriter.write(mProdId + LINE_END);
+            oSWriter.write(mProduceDate + LINE_END);
+            oSWriter.write(mMeasureDate + LINE_END);
+            oSWriter.write(mComment + LINE_END);
+
             oSWriter.write(String.valueOf(mCnt) + LINE_END);
             oSWriter.write(String.valueOf(mLoss) + LINE_END);
             oSWriter.write(String.valueOf(mDl) + LINE_END);
@@ -587,6 +597,10 @@ public class ResultController extends Activity {
                     showParamSetDialog();
                     return;
                 }
+
+                if (mFileName != mProdType) {
+                    mFileName = mProdType;
+                }
                 mSaveData();
             } else if (v == btnReadData) {
                 if(!mReadData()) return;
@@ -609,11 +623,22 @@ public class ResultController extends Activity {
 
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            String str = edtN.getText().toString();
+            try{
 
+                Double value = Double.parseDouble(str);
+                if (value < Common.MIN_N || value > Common.MAX_N) {
+                    mToastMaker("您输入的折射率超过范围，请重新输入");
+                }
+
+            } catch (Exception e){
+                mToastMaker("您输入的折射率有误");
+            }
         }
 
         @Override
         public void afterTextChanged(Editable editable) {
+            // TODO change the N while change the seekbar
             
         }
     };
