@@ -18,9 +18,11 @@ import android.widget.*;
 
 import com.chinomars.bccAndroidViewerCommon.Common;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -177,7 +179,6 @@ public class ResultController extends Activity {
             return super.onKeyDown(keyCode, event);
         }
     }
-
 
     private Boolean isFileNameLegal(String strFileName){
         // TODO judge whether file name is legal
@@ -432,7 +433,6 @@ public class ResultController extends Activity {
 //            mToastMaker("无法打开文件");
 //            return false;
 //        }
-//        return true;
 
         // new read data
         if (!Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)){
@@ -452,20 +452,37 @@ public class ResultController extends Activity {
             }
 
             File[] files = dir.listFiles();
-            
-            // TODO 弹出file list
+
+            LinearLayout fileListLayout = new LinearLayout(this);
+            fileListLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            ListView lvReadFiles = new ListView(this);
+            lvReadFiles.setFadingEdgeLength(0);
+
             ArrayList<String> alFileNames = new ArrayList<>();
             for (int i = 0; i < files.length; ++i) {
                 alFileNames.add(files[i].getName());
             }
-            LayoutInflater inflater = getLayoutInflater();
-            View fileListLayout = inflater.inflate(R.layout.filelister, (ViewGroup) findViewById(R.id.layout_filelister));
-            ListView lvReadFiles = (ListView) fileListLayout.findViewById(R.id.lv_readfiles);
+
             ArrayAdapter<String> adtReadFiles = new ArrayAdapter<>(ResultController.this, android.R.layout.simple_list_item_1, alFileNames);
             lvReadFiles.setAdapter(adtReadFiles);
-            lvReadFiles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            fileListLayout.addView(lvReadFiles);
+
+            final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("请选择文件")
+                .setView(fileListLayout)
+                .setNegativeButton("取消", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which){
+                        dialog.cancel();
+                    }
+                }).create();
+//            dialog.setCanceledOnTouchOutside(false); // 取消点击对话框区域外的部分弹出
+            dialog.show();
+
+            lvReadFiles.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                 @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l){
                     File fileToRead = new File(dir, alFileNames.get(i));
                     try{
                         InputStreamReader inSReader = new InputStreamReader(new FileInputStream(fileToRead));
@@ -512,12 +529,12 @@ public class ResultController extends Activity {
                                 mCurveData[dataNum] = dataTmp;
                                 dataNum++;
                             } else{
-                                mRealCurveLen = dataNum;
+                                addLog("到达数据容量");
                                 break;
                             }
 
                         }
-
+                        mRealCurveLen = dataNum;
                         addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
 
                     } catch (Exception e) {
@@ -525,14 +542,8 @@ public class ResultController extends Activity {
                     }
                 }
             });
-
-            new AlertDialog.Builder(this)
-                .setTitle("请选择文件")
-                .setView(fileListLayout)
-                .show();
-
-        } catch (Exception ioe){
-            ioe.printStackTrace();
+        } catch (Exception e){
+            Log.e(Common.TAG, "error in read direction.");
             return false;
         }
 
@@ -615,9 +626,11 @@ public class ResultController extends Activity {
         str = String.format("%.5f", datatmp);
         edtDL.setText(str);
 
-        datatmp = (double) mN / Common.SCALE;
-        str = String.format("%.5f", datatmp);
-        edtN.setText(str);
+        if (mN >= Common.MIN_N && mN <= Common.MAX_N){
+            datatmp = (double) mN / Common.SCALE;
+            str = String.format("%.5f", datatmp);
+            edtN.setText(str);
+        }
 
         tvOperartor.setText(Common.OPERATOR + mOperator);
         tvMeasureDate.setText(Common.MEASURE_TIME + mMeasureDate);
@@ -626,20 +639,27 @@ public class ResultController extends Activity {
     }
 
     private void mDrawCurve() {
-        LineData data;
-        ArrayList<String> xVal = new ArrayList<>();
-        LineDataSet dataSet;
-        ArrayList<Entry> yVal = new ArrayList<>();
+        if (mRealCurveLen > 0){
+            try{
+                ArrayList<String> xVal = new ArrayList<>();
+                ArrayList<Entry> yVal = new ArrayList<>();
 
-        for(int i = 0; i < mRealCurveLen; ++i){
-            yVal.add(new Entry(mCurveData[i], i));
-            xVal.add(String.valueOf(i+1));
+                for(int i = 0; i < mRealCurveLen; ++i){
+                    yVal.add(new Entry(mCurveData[i], i));
+                    xVal.add(String.valueOf(i+1));
+                }
+
+                LineDataSet dataSet = new LineDataSet(yVal, "curve label");
+                dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                LineData data = new LineData(xVal, dataSet);
+                mCurveDrawer.setDescription("curve test");
+                mCurveDrawer.setData(data);
+                mCurveDrawer.animateY(3000);
+
+            } catch (Exception e) {
+                Log.e(Common.TAG, "error in drawing the curve");
+            }
         }
-
-        dataSet = new LineDataSet(yVal, "curve label");
-        data = new LineData(xVal, dataSet);
-        mCurveDrawer.setData(data);
-        mCurveDrawer.animateY(3000);
 
     }
 
@@ -680,18 +700,6 @@ public class ResultController extends Activity {
                     byte[] sendTmp = new byte[8];
                     // TODO add command data
                     send(sendTmp);
-//                    new Thread(new Runnable() {
-//                        @Override
-//                        public void run(){
-//                            try{
-//                                Log.e(Common.TAG, "Start Send");
-//                                send(sendTmp);
-//                                addLog("try 发送数据成功 by Chino");
-//                            } catch(Exception e){
-                            //    mToastMaker("Thread 发送数据失败 by Chino");
-//                            }
-//                        }
-//                    }).start();
                 }
 
             } else if (v == btnParamSetter) {
@@ -730,9 +738,8 @@ public class ResultController extends Activity {
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             String str = edtN.getText().toString();
             try{
-
-                Double value = Double.parseDouble(str);
-                if (value < Common.MIN_N || value > Common.MAX_N) {
+                Double value = Double.valueOf(str);
+                if (value*Common.SCALE < Common.MIN_N || value*Common.SCALE > Common.MAX_N) {
                     mToastMaker("您输入的折射率超过范围，请重新输入");
                 }
 
