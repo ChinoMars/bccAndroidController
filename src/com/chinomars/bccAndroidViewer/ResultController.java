@@ -667,97 +667,7 @@ public class ResultController extends Activity {
 
     }
 
-    // Button Event Overrider
-    class LongClickEvent implements  View.OnLongClickListener{
-        @Override
-        public boolean onLongClick(View v){
-//            if (v == svLogger || v == tvLog){
-//                svLogger.setVisibility(View.INVISIBLE);
-//                tvLog.setVisibility(View.INVISIBLE);
-//                mCurveDrawer.setVisibility(VISIBLE);
-//                return true;
-//            } else
-            if (v == mCurveDrawer) {
-                svLogger.setVisibility(VISIBLE);
-                tvLog.setVisibility(VISIBLE);
-                mCurveDrawer.setVisibility(View.INVISIBLE);
-                return true;
-            }
 
-            return false;
-        }
-
-    }
-
-    class ClickEvent implements View.OnClickListener{
-        @Override
-        public void onClick(View v){
-            if (v == btnMeasure) {
-                if (rangeMode == Common.MEASURE_RANGE_UNKNOW){
-                    mToastMaker("请先选择测量范围");
-                    return;
-                }
-                if (bConnect) {
-                    edtCnt.setText("0.00000");
-                    edtLoss.setText("0.00000");
-                    edtDL.setText("0.00000");
-                    byte[] sendTmp = new byte[8];
-                    // TODO add command data
-                    send(sendTmp);
-                }
-
-            } else if (v == btnParamSetter) {
-                showParamSetDialog();
-
-            } else if (v == btnSaveData) {
-                if (mFileName == null) {
-                    showParamSetDialog();
-                    return;
-                }
-
-                if (mFileName != mProdType) {
-                    mFileName = mProdType;
-                }
-                mSaveData();
-            } else if (v == btnReadData) {
-                if(!mReadData()) return;
-//                mUpdateDataUI();
-//                mDrawCurve();
-            } else if (v == tvLog) {
-                svLogger.setVisibility(View.INVISIBLE);
-                tvLog.setVisibility(View.INVISIBLE);
-                mCurveDrawer.setVisibility(VISIBLE);
-
-            }
-        }
-    }
-
-    private TextWatcher textWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            String str = edtN.getText().toString();
-            try{
-                Double value = Double.valueOf(str);
-                if (value*Common.SCALE < Common.MIN_N || value*Common.SCALE > Common.MAX_N) {
-                    mToastMaker("您输入的折射率超过范围，请重新输入");
-                }
-
-            } catch (Exception e){
-                mToastMaker("您输入的折射率有误");
-            }
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            // TODO change the N while change the seekbar
-            
-        }
-    };
 
     private BroadcastReceiver connectDevices = new BroadcastReceiver() {
         @Override
@@ -807,8 +717,6 @@ public class ResultController extends Activity {
                     break;
                 case Common.MESSAGE_CONNECT_SUCCEED:
                     addLog("连接成功");
-
-                    // addLog("连接成功了噢 by Chino"); // debug
 
                     mToastMaker("蓝牙连接成功");
                     bConnect = true;
@@ -903,23 +811,112 @@ public class ResultController extends Activity {
 
     };
 
-    public static String bytesToString(byte[] b, int length) {
-        StringBuffer result = new StringBuffer("");
-        for (int i = 0; i < length; i++) {
-            result.append((char) (b[i]));
+    // Button Event Overrider
+    class LongClickEvent implements  View.OnLongClickListener{
+        @Override
+        public boolean onLongClick(View v){
+//            if (v == svLogger || v == tvLog){
+//                svLogger.setVisibility(View.INVISIBLE);
+//                tvLog.setVisibility(View.INVISIBLE);
+//                mCurveDrawer.setVisibility(VISIBLE);
+//                return true;
+//            } else
+            if (v == mCurveDrawer) {
+                svLogger.setVisibility(VISIBLE);
+                tvLog.setVisibility(VISIBLE);
+                mCurveDrawer.setVisibility(View.INVISIBLE);
+                return true;
+            }
+
+            return false;
         }
 
-        return result.toString();
     }
 
-    public void addLog(String str) {
-        tvLog.append(str + "\n");
-        svLogger.post(new Runnable() {
-            public void run() {
-                svLogger.fullScroll(ScrollView.FOCUS_DOWN);
+    class ClickEvent implements View.OnClickListener{
+        @Override
+        public void onClick(View v){
+            if (v == btnMeasure) {
+                if (rangeMode == Common.MEASURE_RANGE_UNKNOW){
+                    mToastMaker("请先选择测量范围");
+                    return;
+                }
+                if (bConnect) {
+                    edtCnt.setText("0.00000");
+                    edtLoss.setText("0.00000");
+                    edtDL.setText("0.00000");
+                    byte[] sendTmp = new byte[8];
+                    // TODO add command data
+                    send(sendTmp);
+                }
+
+            } else if (v == btnParamSetter) {
+                showParamSetDialog();
+
+            } else if (v == btnSaveData) {
+                if (mFileName == null) {
+                    showParamSetDialog();
+                    return;
+                }
+
+                if (mFileName != mProdType) {
+                    mFileName = mProdType;
+                }
+                mSaveData();
+            } else if (v == btnReadData) {
+                if(!mReadData()) return;
+//                mUpdateDataUI();
+//                mDrawCurve();
+            } else if (v == tvLog) {
+                svLogger.setVisibility(View.INVISIBLE);
+                tvLog.setVisibility(View.INVISIBLE);
+                mCurveDrawer.setVisibility(VISIBLE);
+
             }
-        });
+        }
     }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            String str = edtN.getText().toString();
+            try{
+                int value = (int)(Double.valueOf(str) * Common.SCALE);
+                if (value < Common.MIN_N || value > Common.MAX_N) {
+                    mToastMaker("您输入的折射率超过范围，请重新输入");
+                }
+
+            } catch (Exception e){
+                mToastMaker("您输入的折射率有误");
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            // TODO change the N while change the seekbar
+            String str = edtN.getText().toString();
+            try{
+                int value = (int) (Double.valueOf(str) * Common.SCALE);
+                if (value < Common.MIN_N) {
+                    value = Common.MIN_N ;
+                } else if(value > Common.MAX_N) {
+                    value = Common.MAX_N;
+                }
+
+//                edtN.clearFocus();
+                int prog = value - Common.MIN_N;
+                sekbN.setProgress(prog/10);
+
+            } catch (Exception e) {
+                Log.e(Common.TAG, "error edt makes seekbar move");
+            }
+        }
+    };
 
 
     class SeekBarChangeEvent implements SeekBar.OnSeekBarChangeListener {
@@ -932,9 +929,9 @@ public class ResultController extends Activity {
             }
 
             mN = resTmp;
-            double result = (double)resTmp / Common.SCALE;
-            addLog("当前折射率为: " + String.valueOf(result));
-            String str = String.format("%.5f", result);
+            double result = (double) resTmp / Common.SCALE;
+//            addLog("当前折射率为: " + String.valueOf(result));
+            String str = String.format("%.3f", result);
             edtN.setText(str);
         }
 
@@ -963,6 +960,24 @@ public class ResultController extends Activity {
             }
         }
 
+    }
+
+    public static String bytesToString(byte[] b, int length) {
+        StringBuffer result = new StringBuffer("");
+        for (int i = 0; i < length; i++) {
+            result.append((char) (b[i]));
+        }
+
+        return result.toString();
+    }
+
+    public void addLog(String str) {
+        tvLog.append(str + "\n");
+        svLogger.post(new Runnable() {
+            public void run() {
+                svLogger.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
     }
 
     private void setMeasureRange(int rangeCode) {
