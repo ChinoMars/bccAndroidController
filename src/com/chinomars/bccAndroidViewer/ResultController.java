@@ -54,7 +54,7 @@ public class ResultController extends Activity {
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
     int mCnt = 0, mLoss = 0, mDl = 0, mN = 0;
-    int[] mCurveData = new int [Common.MAX_CURVE_LEN];
+    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
     int mRealCurveLen = 0;
 
     Boolean bConnect = false;
@@ -72,6 +72,7 @@ public class ResultController extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.result);
 
         mCurveDrawer = (LineChart) this.findViewById(R.id.curve_drawer);
@@ -571,8 +572,13 @@ public class ResultController extends Activity {
 
                         }
                         mRealCurveLen = dataNum;
-                        addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
 
+                        mUpdateDataUI();
+                        mDrawCurve();
+
+                        mToastMaker("数据加载成功");
+                        addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
+                        dialog.dismiss();
                     } catch (Exception e) {
                         Log.e(Common.TAG, "error when read file");
                     }
@@ -612,28 +618,46 @@ public class ResultController extends Activity {
         addLog("数据更新成功");
     }
 
+    // 仅用在画波形时
+    private int findMaxer()
+    {
+        int maxer = Math.abs(mCurveData[0]);
+        for (int i : mCurveData){
+            int tmp = Math.abs(i);
+            if (tmp > maxer) {
+                maxer = tmp;
+            }
+        }
+
+        return maxer;
+    }
+
     private void mDrawCurve() {
         if (mRealCurveLen > 0){
             try{
                 ArrayList<String> xVal = new ArrayList<>();
                 ArrayList<Entry> yVal = new ArrayList<>();
 
+                int maxer = findMaxer();
+                maxer = (maxer == 0) ? 1 : maxer;
                 for(int i = 0; i < mRealCurveLen; ++i){
-                    yVal.add(new Entry((0-mCurveData[i]), i));
+                    float tmpVal = 1 - (float) Math.abs(mCurveData[i]) / maxer;
+                    yVal.add(new Entry(tmpVal, i));
                     xVal.add("" + (i+1));
                 }
 
-                LineDataSet dataSet = new LineDataSet(yVal, "curve label");
+                LineDataSet dataSet = new LineDataSet(yVal, "频谱波形");
                 dataSet.setColor(Color.GREEN);
                 dataSet.setLineWidth(3f);
                 dataSet.setDrawCircles(false);
                 dataSet.setCubicIntensity(0.6f);
 
                 LineData data = new LineData(xVal, dataSet);
-                mCurveDrawer.setDescription("curve test");
+                mCurveDrawer.setDescription("");
                 mCurveDrawer.setData(data);
                 mCurveDrawer.setBackgroundColor(Color.rgb(201, 201, 201));
                 mCurveDrawer.setGridBackgroundColor(Color.BLACK);
+                mCurveDrawer.setBorderColor(Color.RED);
                 mCurveDrawer.animateX(3000);
 
             } catch (Exception e) {
@@ -697,8 +721,8 @@ public class ResultController extends Activity {
                 mSaveData();
             } else if (v == btnReadData) {
                 if(!mReadData()) return;
-                mUpdateDataUI();
-                mDrawCurve();
+//                mUpdateDataUI();
+//                mDrawCurve();
             } else if (v == tvLog) {
                 svLogger.setVisibility(View.INVISIBLE);
                 tvLog.setVisibility(View.INVISIBLE);
