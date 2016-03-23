@@ -393,6 +393,7 @@ public class ResultController extends Activity {
 
             addLog("数据保存到:" + svFile);
 
+            mToastMaker("数据保存成功");
 
         } catch (Exception e) {
             mToastMaker("数据保存错误");
@@ -407,180 +408,180 @@ public class ResultController extends Activity {
 
     private Boolean mReadData() {
         // Read test data 'testdata.txt'
-        try{
-            String fn = "testdata.txt";
-            Log.e(Common.TAG, "can't open file" + fn);
-            InputStreamReader inSReader = new InputStreamReader(getResources().getAssets().open(fn));
-            BufferedReader bufReader = new BufferedReader(inSReader);
-            String line = "";
-            int dataNum = 0;
-            if ((line = bufReader.readLine()) != null) {
-                mOperator = line;
-            }
-            if ((line = bufReader.readLine()) != null) {
-                mProdType = line;
-            }
-            if ((line = bufReader.readLine()) != null) {
-                mProdId = line;
-            }
-            if ((line = bufReader.readLine()) != null) {
-                mProduceDate = line;
-            }
-            if ((line = bufReader.readLine()) != null) {
-                mMeasureDate = line;
-            }
-            if ((line = bufReader.readLine()) != null) {
-                mComment = line;
-            }
+//        try{
+//            String fn = "testdata.txt";
+//            Log.e(Common.TAG, "can't open file" + fn);
+//            InputStreamReader inSReader = new InputStreamReader(getResources().getAssets().open(fn));
+//            BufferedReader bufReader = new BufferedReader(inSReader);
+//            String line = "";
+//            int dataNum = 0;
+//            if ((line = bufReader.readLine()) != null) {
+//                mOperator = line;
+//            }
+//            if ((line = bufReader.readLine()) != null) {
+//                mProdType = line;
+//            }
+//            if ((line = bufReader.readLine()) != null) {
+//                mProdId = line;
+//            }
+//            if ((line = bufReader.readLine()) != null) {
+//                mProduceDate = line;
+//            }
+//            if ((line = bufReader.readLine()) != null) {
+//                mMeasureDate = line;
+//            }
+//            if ((line = bufReader.readLine()) != null) {
+//                mComment = line;
+//            }
+//
+//            if ((line = bufReader.readLine()) != null){
+//                mCnt = Integer.parseInt(line);
+//            }
+//
+//            if ((line = bufReader.readLine()) != null){
+//                mLoss = Integer.parseInt(line);
+//            }
+//
+//            if ((line = bufReader.readLine()) != null){
+//                mDl = Integer.parseInt(line);
+//            }
+//
+//            if ((line = bufReader.readLine()) != null) {
+//                mN = Integer.parseInt(line);
+//            }
+//
+//            while((line = bufReader.readLine()) != null){
+//                int dataTmp = Integer.parseInt(line);
+//                if (dataNum + 1 < Common.MAX_CURVE_LEN){
+//                    mCurveData[dataNum] = dataTmp;
+//                    dataNum++;
+//                } else {
+//                    addLog("到达数据容量");
+//                    break;
+//                }
+//
+//            }
+//
+//            mRealCurveLen = dataNum;
+//            addLog("读取" + String.valueOf(mRealCurveLen) + "个数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
+//
+//        } catch (Exception e){
+//            mToastMaker("无法打开文件");
+//            return false;
+//        }
 
-            if ((line = bufReader.readLine()) != null){
-                mCnt = Integer.parseInt(line);
-            }
-
-            if ((line = bufReader.readLine()) != null){
-                mLoss = Integer.parseInt(line);
-            }
-
-            if ((line = bufReader.readLine()) != null){
-                mDl = Integer.parseInt(line);
-            }
-
-            if ((line = bufReader.readLine()) != null) {
-                mN = Integer.parseInt(line);
-            }
-
-            while((line = bufReader.readLine()) != null){
-                int dataTmp = Integer.parseInt(line);
-                if (dataNum + 1 < Common.MAX_CURVE_LEN){
-                    mCurveData[dataNum] = dataTmp;
-                    dataNum++;
-                } else {
-                    addLog("到达数据容量");
-                    break;
-                }
-
-            }
-
-            mRealCurveLen = dataNum;
-            addLog("读取" + String.valueOf(mRealCurveLen) + "个数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
-
-        } catch (Exception e){
-            mToastMaker("无法打开文件");
+        // new read data
+        if (!Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)){
+            mAlert("本机未插入SD卡，无法读取");
             return false;
         }
 
-        // new read data
-//        if (!Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)){
-//            mAlert("本机未插入SD卡，无法读取");
-//            return false;
-//        }
-//
-//        if (mFileName == null){
-//            mToastMaker("请设置需要读取的产品的信息");
-//            return false;
-//        }
-//        try{
-//            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
-//            if (!dir.exists()){
-//                mToastMaker("尚未保存任何文件");
-//                return false;
-//            }
-//
-//            File[] files = dir.listFiles();
-//
-//            LinearLayout fileListLayout = new LinearLayout(this);
-//            fileListLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//            ListView lvReadFiles = new ListView(this);
-//            lvReadFiles.setFadingEdgeLength(0);
-//
-//            ArrayList<String> alFileNames = new ArrayList<>();
-//            for (int i = 0; i < files.length; ++i) {
-//                alFileNames.add(files[i].getName());
-//            }
-//
-//            ArrayAdapter<String> adtReadFiles = new ArrayAdapter<>(ResultController.this, android.R.layout.simple_list_item_1, alFileNames);
-//            lvReadFiles.setAdapter(adtReadFiles);
-//
-//            fileListLayout.addView(lvReadFiles);
-//
-//            final AlertDialog dialog = new AlertDialog.Builder(this)
-//                .setTitle("请选择文件")
-//                .setView(fileListLayout)
-//                .setNegativeButton("取消", new DialogInterface.OnClickListener(){
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which){
-//                        dialog.cancel();
-//                    }
-//                }).create();
-////            dialog.setCanceledOnTouchOutside(false); // 取消点击对话框区域外的部分弹出
-//            dialog.show();
-//
-//            lvReadFiles.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-//                @Override
-//                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l){
-//                    File fileToRead = new File(dir, alFileNames.get(i));
-//                    try{
-//                        InputStreamReader inSReader = new InputStreamReader(new FileInputStream(fileToRead));
-//                        BufferedReader bufReader = new BufferedReader(inSReader);
-//                        String line = "";
-//                        int dataNum = 0;
-//                        if ((line = bufReader.readLine()) != null) {
-//                            mOperator = line;
-//                        }
-//                        if ((line = bufReader.readLine()) != null) {
-//                            mProdType = line;
-//                        }
-//                        if ((line = bufReader.readLine()) != null) {
-//                            mProdId = line;
-//                        }
-//                        if ((line = bufReader.readLine()) != null) {
-//                            mProduceDate = line;
-//                        }
-//                        if ((line = bufReader.readLine()) != null) {
-//                            mMeasureDate = line;
-//                        }
-//                        if ((line = bufReader.readLine()) != null) {
-//                            mComment = line;
-//                        }
-//
-//                        if ((line = bufReader.readLine()) != null){
-//                            mCnt = Integer.parseInt(line);
-//                        }
-//
-//                        if ((line = bufReader.readLine()) != null){
-//                            mLoss = Integer.parseInt(line);
-//                        }
-//
-//                        if ((line = bufReader.readLine()) != null){
-//                            mDl = Integer.parseInt(line);
-//                        }
-//                        if ((line = bufReader.readLine()) != null){
-//                            mN = Integer.parseInt(line);
-//                        }
-//
-//                        while((line = bufReader.readLine()) != null){
-//                            int dataTmp = Integer.parseInt(line);
-//                            if (dataNum + 1 < Common.MAX_CURVE_LEN){
-//                                mCurveData[dataNum] = dataTmp;
-//                                dataNum++;
-//                            } else{
-//                                addLog("到达数据容量");
-//                                break;
-//                            }
-//
-//                        }
-//                        mRealCurveLen = dataNum;
-//                        addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
-//
-//                    } catch (Exception e) {
-//                        Log.e(Common.TAG, "error when read file");
-//                    }
-//                }
-//            });
-//        } catch (Exception e){
-//            Log.e(Common.TAG, "error in read direction.");
-//            return false;
-//        }
+        if (mFileName == null){
+            mToastMaker("请设置需要读取的产品的信息");
+            return false;
+        }
+        try{
+            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
+            if (!dir.exists()){
+                mToastMaker("尚未保存任何文件");
+                return false;
+            }
+
+            File[] files = dir.listFiles();
+
+            LinearLayout fileListLayout = new LinearLayout(this);
+            fileListLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            ListView lvReadFiles = new ListView(this);
+            lvReadFiles.setFadingEdgeLength(0);
+
+            ArrayList<String> alFileNames = new ArrayList<>();
+            for (int i = 0; i < files.length; ++i) {
+                alFileNames.add(files[i].getName());
+            }
+
+            ArrayAdapter<String> adtReadFiles = new ArrayAdapter<>(ResultController.this, android.R.layout.simple_list_item_1, alFileNames);
+            lvReadFiles.setAdapter(adtReadFiles);
+
+            fileListLayout.addView(lvReadFiles);
+
+            final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("请选择文件")
+                .setView(fileListLayout)
+                .setNegativeButton("取消", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which){
+                        dialog.cancel();
+                    }
+                }).create();
+//            dialog.setCanceledOnTouchOutside(false); // 取消点击对话框区域外的部分弹出
+            dialog.show();
+
+            lvReadFiles.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l){
+                    File fileToRead = new File(dir, alFileNames.get(i));
+                    try{
+                        InputStreamReader inSReader = new InputStreamReader(new FileInputStream(fileToRead));
+                        BufferedReader bufReader = new BufferedReader(inSReader);
+                        String line = "";
+                        int dataNum = 0;
+                        if ((line = bufReader.readLine()) != null) {
+                            mOperator = line;
+                        }
+                        if ((line = bufReader.readLine()) != null) {
+                            mProdType = line;
+                        }
+                        if ((line = bufReader.readLine()) != null) {
+                            mProdId = line;
+                        }
+                        if ((line = bufReader.readLine()) != null) {
+                            mProduceDate = line;
+                        }
+                        if ((line = bufReader.readLine()) != null) {
+                            mMeasureDate = line;
+                        }
+                        if ((line = bufReader.readLine()) != null) {
+                            mComment = line;
+                        }
+
+                        if ((line = bufReader.readLine()) != null){
+                            mCnt = Integer.parseInt(line);
+                        }
+
+                        if ((line = bufReader.readLine()) != null){
+                            mLoss = Integer.parseInt(line);
+                        }
+
+                        if ((line = bufReader.readLine()) != null){
+                            mDl = Integer.parseInt(line);
+                        }
+                        if ((line = bufReader.readLine()) != null){
+                            mN = Integer.parseInt(line);
+                        }
+
+                        while((line = bufReader.readLine()) != null){
+                            int dataTmp = Integer.parseInt(line);
+                            if (dataNum + 1 < Common.MAX_CURVE_LEN){
+                                mCurveData[dataNum] = dataTmp;
+                                dataNum++;
+                            } else{
+                                addLog("到达数据容量");
+                                break;
+                            }
+
+                        }
+                        mRealCurveLen = dataNum;
+                        addLog("读取数据:\nCnt: " + String.valueOf(mCnt) + "\nLoss: " + String.valueOf(mLoss) + "\nDl: " + String.valueOf(mDl) + "\nN:" + String.valueOf(mN));
+
+                    } catch (Exception e) {
+                        Log.e(Common.TAG, "error when read file");
+                    }
+                }
+            });
+        } catch (Exception e){
+            Log.e(Common.TAG, "error in read direction.");
+            return false;
+        }
 
         return true;
 
@@ -627,11 +628,12 @@ public class ResultController extends Activity {
                 dataSet.setLineWidth(3f);
                 dataSet.setDrawCircles(false);
                 dataSet.setCubicIntensity(0.6f);
-                dataSet.setValueTextColor(Color.WHITE);
+
                 LineData data = new LineData(xVal, dataSet);
                 mCurveDrawer.setDescription("curve test");
                 mCurveDrawer.setData(data);
-                mCurveDrawer.setBackgroundColor(Color.BLACK);
+                mCurveDrawer.setBackgroundColor(Color.rgb(201, 201, 201));
+                mCurveDrawer.setGridBackgroundColor(Color.BLACK);
                 mCurveDrawer.animateX(3000);
 
             } catch (Exception e) {
