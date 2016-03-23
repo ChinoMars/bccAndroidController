@@ -29,6 +29,8 @@ public class Common {
     public static final double SCALE = 10000; // based on the MAX_N and MIN_N
     public static final int RESULT_DATA_LEN = 806; // 待定 3 short int + 400 short int
     public static final int MAX_CURVE_LEN = 400;
+    public static final int MAX_FILE_NUM = 999;
+    public static final int FILE_SUFFIX_LEN = 3;
 
     // Measure mode
     public static final Integer MEASURE_MODE_UNKNOW = 0;

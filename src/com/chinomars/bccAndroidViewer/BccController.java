@@ -190,7 +190,6 @@ public class BccController extends Activity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
-                                // TODO Auto-generated method stub
                                  dialog.dismiss();
                             }
                         }).show();
