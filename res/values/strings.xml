@@ -7,7 +7,7 @@
     <string name="txt_btn_connect_BT">开始</string>
     <string name="txt_btn_about">关于</string>
     <string name="txt_btn_measure">开始测量</string>
-    <string name="txt_btn_paramset">用户参数设置</string>
+    <string name="txt_btn_paramset">参数设置</string>
     <string name="txt_about">本软件用于</string>
     <string name="txt_result">Result:</string>
     <!--<string name="txt_cnt">Cnt:</string>-->

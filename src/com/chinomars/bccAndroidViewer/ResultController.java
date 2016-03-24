@@ -321,10 +321,10 @@ public class ResultController extends Activity {
                 return;
             }
 //            nNeed = Common.RESULT_DATA_LEN;
-            // nNeed = 10; // for debug
-            // nRecved = 0;
+            nNeed = 10; // for debug
+            nRecved = 0;
             mmOutStream.write(sendCommand);
-            addLog("发送开始测量指令");
+            addLog("发送开始测量指令: " + sendCommand[1]);
 
             canUpdateResult = true;
 
@@ -333,6 +333,24 @@ public class ResultController extends Activity {
             return;
         }
 
+    }
+
+    public void mSendCommand(String command){
+        if (!bConnect) {
+            return;
+        }
+
+        try {
+            if (mmOutStream == null) {
+                return;
+            }
+//            mmOutStream.write(command);
+            addLog("发送指令：" + command);
+            canUpdateResult = true;
+
+        } catch (Exception e) {
+            mToastMaker("发送命令失败");
+        }
     }
 
     private void mSaveData(){
@@ -742,10 +760,11 @@ public class ResultController extends Activity {
                                     Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
                                     nRecved += nRecv;
                                     canUpdateResult = true;
-                                    if (nRecved < nNeed) {
+                                    if (nRecved < nNeed && nNeed > 0) {
                                         Thread.sleep(1000);
                                     }
 
+                                    if(nNeed > 0)
                                     mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
 
                                 } catch (Exception e) {
@@ -800,6 +819,11 @@ public class ResultController extends Activity {
                     String strRecv = bytesToString(bBuf, msg.arg1);
                     addLog("接收数据: " + strRecv);
 
+                    // 接收成功重置所需要的数据长度和已接受的长度
+                    if (nRecved >= nNeed) {
+                        nRecved = 0;
+                        nNeed = 0;
+                    }
                     break;
                 case Common.MESSAGE_TOAST:
                     Toast.makeText(getApplicationContext(), 
@@ -845,7 +869,8 @@ public class ResultController extends Activity {
                     edtCnt.setText("0.00000");
                     edtLoss.setText("0.00000");
                     edtDL.setText("0.00000");
-                    byte[] sendTmp = new byte[8];
+//                    byte[] sendTmp = new byte[8];
+                    byte[] sendTmp = {'I','w','a','n','t'};
                     // TODO add command data
                     send(sendTmp);
                 }
