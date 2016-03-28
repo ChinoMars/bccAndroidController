@@ -4,6 +4,7 @@ LICENSE
 # auto-gen direction
 /gen
 /out
+/_site
 
 # other files
 /.idea
