@@ -755,10 +755,6 @@ public class ResultController extends Activity {
                                         continue;
                                     }
 
-                                    // for test
-                                    String recMsg = new String(bufRev, 0, nRecv, "UTF-8");
-                                    Log.d(Common.TAG, "Receive: " + recMsg);
-
                                     byte[] nPacket = new byte[nRecv];
                                     System.arraycopy(bufRev, 0, nPacket, 0, nRecv);
                                     Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
@@ -769,7 +765,7 @@ public class ResultController extends Activity {
                                     }
 
                                     if(nNeed > 0)
-                                        mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
+                                    mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
 
                                 } catch (Exception e) {
                                     Log.e(Common.TAG, "Recv thread:" + e.getMessage());
@@ -819,10 +815,9 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
-//                    byte[] bBuf = (byte[]) msg.obj;
-                    byte bBuf = (byte) msg.obj;
-//                    String strRecv = bytesToString(bBuf, msg.arg1);
-//                    addLog("接收数据: " + strRecv);
+                    byte[] bBuf = (byte[]) msg.obj;
+                    String strRecv = bytesToString(bBuf, msg.arg1);
+                    addLog("接收数据: " + strRecv);
 
                     // 接收成功重置所需要的数据长度和已接受的长度
                     if (nRecved >= nNeed) {
@@ -875,7 +870,7 @@ public class ResultController extends Activity {
                     edtLoss.setText("0.00000");
                     edtDL.setText("0.00000");
 //                    byte[] sendTmp = new byte[8];
-                    byte[] sendTmp = {0x41,0x42,0x43,0x44,0x45};
+                    byte[] sendTmp = {'I','w','a','n','t'};
                     // TODO add command data
                     send(sendTmp);
                 }

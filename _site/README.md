@@ -6,7 +6,7 @@
 名字想好了！！！叫做 **光线长度精密测量仪器控制软件**。。。
 
 > 顺便贴个初版的软件贴图好了，顺便测试下七牛外链图片
-![image](http://7xjhsi.com1.z0.glb.clouddn.com/image/githubreadme/S60323-193741.jpg?imageView2/2/w/500
+![image](http://7xjhsi.com1.z0.glb.clouddn.com/image/githubreadme/S60323-193741.jpg
 )
 
 ##功能简介
@@ -39,7 +39,7 @@
 
 ###20160316
 - 增加`lib`：MPAndroidChart-2.0.9，Thank PhilJay for [PhilJay/MPAndroidChart](https://github.com/PhilJay/MPAndroidChart)
-	
+	nd
 ###20160317
 - 某著名游戏公司面试挂归，今天我什么都不想干^^
 
@@ -67,9 +67,6 @@
 - 待解决问题：
     - 发送和接收乱码
     - 更新绘图的频率：`canUpdateResult`相关
-
-###20160328
-- 发送接收乱码
     
 ###需求更新
 ####20160315
