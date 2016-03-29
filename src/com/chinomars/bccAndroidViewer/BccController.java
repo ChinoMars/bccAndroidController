@@ -67,12 +67,17 @@ public class BccController extends Activity {
 
 
 //        lvBTDevices = (ListView) this.findViewById(R.id.lvDevices);
-        adtDevices = new ArrayAdapter<String>(BccController.this,
+        adtDevices = new ArrayAdapter<>(BccController.this,
                 android.R.layout.simple_list_item_1, lstDevices);
 //        lvBTDevices.setAdapter(adtDevices);
 //        lvBTDevices.setOnItemClickListener(new ItemClickEvent());
 
         btAdapt = BluetoothAdapter.getDefaultAdapter();
+
+        if (!btAdapt.isEnabled()) {
+            btAdapt.enable();
+        }
+
 
         // 注册Receiver来获取蓝牙设备相关的结果
         IntentFilter intent = new IntentFilter();
@@ -130,9 +135,12 @@ public class BccController extends Activity {
 
     @Override
     protected void onDestroy() {
+        btAdapt.disable();
+
         super.onDestroy();
         android.os.Process.killProcess(android.os.Process.myPid());
     }
+    
 
 //    class ItemClickEvent implements AdapterView.OnItemClickListener
 //    {
