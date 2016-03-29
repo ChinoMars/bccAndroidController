@@ -31,7 +31,10 @@ public class Common {
     public static final int MAX_CURVE_LEN = 400;
     public static final int MAX_FILE_NUM = 999;
     public static final int FILE_SUFFIX_LEN = 3;
-
+    public static final int RECEIVE_TYPE_DATA = 1;
+    public static final int RECEIVE_TYPE_RESULT = 2;
+    public static final int RECEIVE_DATA_SECTION_LEN = 100; // data section length
+    public static final int RECEIVE_DATA_RESULT_LEN = 6;
     // Measure mode
     public static final Integer MEASURE_MODE_UNKNOW = 0;
     public static final Integer MEASURE_MODE_BCC = 1;

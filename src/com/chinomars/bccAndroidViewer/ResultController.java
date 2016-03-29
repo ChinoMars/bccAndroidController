@@ -329,12 +329,11 @@ public class ResultController extends Activity {
                 return;
             }
             nNeed = Common.RESULT_DATA_LEN;
-            nNeed = 10; // for debug
             nRecved = 0;
             mmOutStream.write(sendCommand);
-            addLog("发送开始测量指令: " + sendCommand[1]);
+            addLog("发送开始测量指令: " + bytesToString(sendCommand, 8));
 
-            canUpdateResult = true;
+            // canUpdateResult = true;
 
         } catch(Exception e) {
             mToastMaker("发送命令失败");
@@ -343,23 +342,6 @@ public class ResultController extends Activity {
 
     }
 
-    public void mSendCommand(String command){
-        if (!bConnect) {
-            return;
-        }
-
-        try {
-            if (mmOutStream == null) {
-                return;
-            }
-//            mmOutStream.write(command);
-            addLog("发送指令：" + command);
-            canUpdateResult = true;
-
-        } catch (Exception e) {
-            mToastMaker("发送命令失败");
-        }
-    }
 
     private void mSaveData(){
         // FILE METHOD save to SD card, absolute PATH: SDCARD/BccDATA/
@@ -599,6 +581,7 @@ public class ResultController extends Activity {
                         }
                         mRealCurveLen = dataNum;
 
+                        canUpdateResult = true;
                         mUpdateDataUI();
                         mDrawCurve();
 
@@ -620,21 +603,26 @@ public class ResultController extends Activity {
     }
 
     private void mUpdateDataUI() {
+        if (!canUpdateResult) {
+            mToastMaker("当前无法更新测量结果");
+            return;
+        }
+
         double datatmp = (double) mCnt / Common.SCALE;
-        String str = String.format("%.5f",datatmp);
+        String str = String.format("%.1f",datatmp);
         edtCnt.setText(str);
 
         datatmp = (double) mLoss / Common.SCALE;
-        str = String.format("%.5f", datatmp);
+        str = String.format("%.4f", datatmp);
         edtLoss.setText(str);
 
         datatmp = (double) mDl / Common.SCALE;
-        str = String.format("%.5f", datatmp);
+        str = String.format("%.4f", datatmp);
         edtDL.setText(str);
 
         if (mN >= Common.MIN_N && mN <= Common.MAX_N){
             datatmp = (double) mN / Common.SCALE;
-            str = String.format("%.5f", datatmp);
+            str = String.format("%.4f", datatmp);
             edtN.setText(str);
         }
 
@@ -659,6 +647,10 @@ public class ResultController extends Activity {
     }
 
     private void mDrawCurve() {
+        if (!canUpdateResult) {
+            mToastMaker("目前无法更新数据和测量结果");
+            return;
+        }
         if (mRealCurveLen > 0){
             try{
                 ArrayList<String> xVal = new ArrayList<>();
@@ -691,6 +683,8 @@ public class ResultController extends Activity {
             }
         }
 
+        canUpdateResult = false;
+
     }
 
 
@@ -707,10 +701,6 @@ public class ResultController extends Activity {
             }
         }
     };
-
-    private void mDataReceivedProc(byte[] bBuf, int bufLen) {
-
-    }
 
     public final Handler mHandler = new Handler() {
         @Override
@@ -770,13 +760,13 @@ public class ResultController extends Activity {
                                     byte[] nPacket = new byte[nRecv];
                                     System.arraycopy(bufRev, 0, nPacket, 0, nRecv);
                                     Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
-                                    nRecved += nRecv;
-                                    canUpdateResult = true;
-                                    if (nRecved < nNeed && nNeed > 0) {
+//                                    nRecved += nRecv;
+//                                    canUpdateResult = true;
+                                    if (nRecv < Common.RECEIVE_DATA_SECTION_LEN + 4 && nNeed > 0) {
                                         Thread.sleep(1000);
                                     }
 
-                                    if(nNeed > 0)
+                                    if(nNeed > 0 && nRecved < nNeed)
                                         mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
 
                                 } catch (Exception e) {
@@ -827,16 +817,25 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
+                    if (nRecved >= nNeed || nNeed == 0) {
+                        break;
+                    }
+
                     byte[] bBuf = (byte[]) msg.obj;
-                    mDataReceivedProc(bBuf, msg.arg1);
+                    parseRevData(bBuf, msg.arg1);
 
                     String strRecv = bytesToString(bBuf, msg.arg1);
-                    addLog("接收数据: " + strRecv);
+                    Log.d(Common.TAG, strRecv);
 
                     // 接收成功重置所需要的数据长度和已接受的长度
-                    if (nRecved >= nNeed) {
+                    if (nRecved >= nNeed && nNeed != 0) {
                         nRecved = 0;
                         nNeed = 0;
+                    }
+
+                    if (canUpdateResult) {
+                        mUpdateDataUI();
+                        mDrawCurve();
                     }
 
                     break;
@@ -849,6 +848,81 @@ public class ResultController extends Activity {
         }
 
     };
+
+    private void parseRevData(byte[] revByteBuf, int len) {
+        if (nNeed == 0 || nRecved >= nNeed) {
+            return;
+        }
+
+        if (revByteBuf[0] != PKGHEAD[0] || revByteBuf[1] != PKGHEAD[1]) {
+            return;
+        }
+
+        if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_DATA) {
+            int sectionLen = Common.RECEIVE_DATA_SECTION_LEN;
+            byte[] dataBuf = new byte[sectionLen];
+            // TODO whether the data length of revBuf is less than 100;
+            if (revByteBuf.length - 4 < sectionLen) {
+                sectionLen = revByteBuf.length - 4;
+            }
+
+            System.arraycopy(revByteBuf, 3, dataBuf, 0, sectionLen);
+            byte checkSumSection = mGenCheckSum(dataBuf, sectionLen);
+            if (checkSumSection != revByteBuf[revByteBuf.length-1]) {
+                // TODO ask for resend
+                return;
+            }
+
+            for (int i = 0; i < sectionLen-1; i += 2) {
+                int dataTmp =  (int) ((dataBuf[i] << 8) | (dataBuf[i+1] & 0xff)); // i + 1 take rask to overflow
+                mCurveData[nRecved] = dataTmp;
+                nRecved += 2;   
+            }
+
+            if (nRecved >= nNeed) {
+                Log.e(Common.TAG, "error: curve data overflow");
+            }
+
+        } else if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_RESULT) {
+            int resultLen = Common.RECEIVE_DATA_RESULT_LEN;
+            if (revByteBuf.length - 4 < resultLen) {
+                // TODO ask for resend
+                Log.e(Common.TAG, "received byte error too short");
+                return;
+            }
+
+            byte[] dataBuf = new byte[resultLen];
+            System.arraycopy(revByteBuf, 3, dataBuf, 0, resultLen);
+            byte checkSumResult = mGenCheckSum(dataBuf, resultLen);
+            if (checkSumResult != revByteBuf[revByteBuf.length-1]) {
+                // TODO ask for resend
+                Log.e(Common.TAG, "CRC ummatched");
+                return;
+            }
+
+            int dataTmp = (int) ((dataBuf[0] << 8) | (dataBuf[1] & 0xff));
+            mCnt = dataTmp;
+            dataTmp = (int) ((dataBuf[2] << 8) | (dataBuf[3] & 0xff));
+            mLoss = dataTmp;
+            dataTmp = (int) ((dataBuf[4] << 8) | (dataBuf[5] & 0xff));
+            mDl = dataTmp;
+            nRecved += 6;
+
+            if (nRecved < nNeed) {
+                Log.e(Common.TAG, "data lost");
+                nRecved = 0;
+                nNeed = Common.RESULT_DATA_LEN;
+                return;
+            }
+
+            canUpdateResult = true;
+        } else {
+            // TODO ask for resend
+            Log.e(Common.TAG, "data tag ummatch");
+            return;
+        }
+
+    }
 
 
     // Button Event Overrider
@@ -884,13 +958,15 @@ public class ResultController extends Activity {
 
     private byte[] mGenMeasureCmd() {
         byte[] cmdRes = new byte[8];
-
+        cmdRes[0] = PKGHEAD[0];
         cmdRes[1] = PKGHEAD[1];
         cmdRes[2] = (byte) (workMode & 0xff);
 
         // int N to 2 bytes
         cmdRes[3] = (byte) (mN >> 8);
         cmdRes[4] = (byte) (mN & 0xff);
+
+//        int tmptest = (int) ((cmdRes[3] << 8) | (cmdRes[4] & 0xff));
 
         cmdRes[5] = (byte) (rangeMode >> 8);
         cmdRes[6] = (byte) (rangeMode & 0xff);
@@ -1031,7 +1107,8 @@ public class ResultController extends Activity {
     }
 
     public static String bytesToString(byte[] b, int length) {
-        StringBuffer result = new StringBuffer("");
+        // StringBuffer result = new StringBuffer("");
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < length; i++) {
             result.append((char) (b[i]));
         }
