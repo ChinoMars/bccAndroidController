@@ -28,6 +28,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.zip.CRC32;
 
 import static android.view.View.VISIBLE;
 
@@ -35,6 +36,7 @@ import static android.view.View.VISIBLE;
  * Created by Chino on 3/7/16.
  */
 public class ResultController extends Activity {
+    public static byte[] PKGHEAD = {(byte)0xA5, 0x5A};
     public static String FILE_SAVE_PATH = "/BccData/";
     public static String LINE_END = "\r\n";
     private InputStream mmInStream;
@@ -64,9 +66,15 @@ public class ResultController extends Activity {
     int nNeed = 0;
     byte[] bRecv = new byte[1024];
     int nRecved = 0;
+//    CRC32 checkSum;
     Boolean canUpdateResult = false;
     String mFileName = null; // set the file name to save
-    String mOperator = null, mProdType = null, mProdId = null, mProduceDate = null, mMeasureDate = null, mComment = null;
+    String mOperator = null,
+            mProdType = null,
+            mProdId = null,
+            mProduceDate = null,
+            mMeasureDate = null,
+            mComment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -320,7 +328,7 @@ public class ResultController extends Activity {
             if (mmOutStream == null) {
                 return;
             }
-//            nNeed = Common.RESULT_DATA_LEN;
+            nNeed = Common.RESULT_DATA_LEN;
             nNeed = 10; // for debug
             nRecved = 0;
             mmOutStream.write(sendCommand);
@@ -700,6 +708,10 @@ public class ResultController extends Activity {
         }
     };
 
+    private void mDataReceivedProc(byte[] bBuf, int bufLen) {
+
+    }
+
     public final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -754,10 +766,6 @@ public class ResultController extends Activity {
                                         Thread.sleep(1000);
                                         continue;
                                     }
-
-                                    // for test
-                                    String recMsg = new String(bufRev, 0, nRecv, "UTF-8");
-                                    Log.d(Common.TAG, "Receive: " + recMsg);
 
                                     byte[] nPacket = new byte[nRecv];
                                     System.arraycopy(bufRev, 0, nPacket, 0, nRecv);
@@ -819,16 +827,18 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
-//                    byte[] bBuf = (byte[]) msg.obj;
-                    byte bBuf = (byte) msg.obj;
-//                    String strRecv = bytesToString(bBuf, msg.arg1);
-//                    addLog("接收数据: " + strRecv);
+                    byte[] bBuf = (byte[]) msg.obj;
+                    mDataReceivedProc(bBuf, msg.arg1);
+
+                    String strRecv = bytesToString(bBuf, msg.arg1);
+                    addLog("接收数据: " + strRecv);
 
                     // 接收成功重置所需要的数据长度和已接受的长度
                     if (nRecved >= nNeed) {
                         nRecved = 0;
                         nNeed = 0;
                     }
+
                     break;
                 case Common.MESSAGE_TOAST:
                     Toast.makeText(getApplicationContext(), 
@@ -839,6 +849,7 @@ public class ResultController extends Activity {
         }
 
     };
+
 
     // Button Event Overrider
     class LongClickEvent implements  View.OnLongClickListener{
@@ -862,6 +873,33 @@ public class ResultController extends Activity {
 
     }
 
+    private byte mGenCheckSum(byte[] buf, int len) {
+        byte res = 0x00;
+        for (int i = 0; i < len; ++i) {
+            res ^= buf[i];
+        }
+
+        return res;
+    }
+
+    private byte[] mGenMeasureCmd() {
+        byte[] cmdRes = new byte[8];
+
+        cmdRes[1] = PKGHEAD[1];
+        cmdRes[2] = (byte) (workMode & 0xff);
+
+        // int N to 2 bytes
+        cmdRes[3] = (byte) (mN >> 8);
+        cmdRes[4] = (byte) (mN & 0xff);
+
+        cmdRes[5] = (byte) (rangeMode >> 8);
+        cmdRes[6] = (byte) (rangeMode & 0xff);
+
+        cmdRes[7] = mGenCheckSum(cmdRes, 7);
+
+        return cmdRes;
+    }
+
     class ClickEvent implements View.OnClickListener{
         @Override
         public void onClick(View v){
@@ -871,13 +909,13 @@ public class ResultController extends Activity {
                     return;
                 }
                 if (bConnect) {
-                    edtCnt.setText("0.00000");
-                    edtLoss.setText("0.00000");
-                    edtDL.setText("0.00000");
-//                    byte[] sendTmp = new byte[8];
-                    byte[] sendTmp = {0x41,0x42,0x43,0x44,0x45};
+                    edtCnt.setText("0");
+                    edtLoss.setText("0.0000");
+                    edtDL.setText("0.0000");
+                    byte[] sendCmd = mGenMeasureCmd();
+
                     // TODO add command data
-                    send(sendTmp);
+                    send(sendCmd);
                 }
 
             } else if (v == btnParamSetter) {
