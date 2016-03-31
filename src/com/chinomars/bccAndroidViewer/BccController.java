@@ -135,12 +135,12 @@ public class BccController extends Activity {
 
     @Override
     protected void onDestroy() {
-        btAdapt.disable();
+//        btAdapt.disable();
 
         super.onDestroy();
         android.os.Process.killProcess(android.os.Process.myPid());
     }
-    
+
 
 //    class ItemClickEvent implements AdapterView.OnItemClickListener
 //    {

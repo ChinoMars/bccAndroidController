@@ -28,6 +28,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.Vector;
 import java.util.zip.CRC32;
 
 import static android.view.View.VISIBLE;
@@ -56,8 +57,9 @@ public class ResultController extends Activity {
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
     int mCnt = 0, mLoss = 0, mDl = 0, mN = 0;
-    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
-    int mRealCurveLen = 0;
+//    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
+    Vector<Integer> mCurveData = new Vector<>();
+//    int mRealCurveLen = 0;
 
     Boolean bConnect = false;
     String strName = null;
@@ -66,8 +68,9 @@ public class ResultController extends Activity {
     int nNeed = 0;
     byte[] bRecv = new byte[1024];
     int nRecved = 0;
+    int isStartRecv = 0;
 //    CRC32 checkSum;
-    Boolean canUpdateResult = false;
+    Boolean canUpdateResult = true;
     String mFileName = null; // set the file name to save
     String mOperator = null,
             mProdType = null,
@@ -328,12 +331,23 @@ public class ResultController extends Activity {
             if (mmOutStream == null) {
                 return;
             }
-            nNeed = Common.RESULT_DATA_LEN;
+            // when get send success info, set the nNeed and nRecved
+            try {
+                if (mmInStream != null) {
+                    if (mmInStream.available() != 0) {
+                        byte[] flushByte = new byte[1024];
+                        int flushLen = mmInStream.read(flushByte);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(Common.TAG, "error in flush inputstream");
+            }
+            nNeed = Common.RESULT_AND_DATA_LEN;
             nRecved = 0;
             mmOutStream.write(sendCommand);
             addLog("发送开始测量指令: " + bytesToString(sendCommand, 8));
 
-            // canUpdateResult = true;
+            canUpdateResult = true;
 
         } catch(Exception e) {
             mToastMaker("发送命令失败");
@@ -393,8 +407,9 @@ public class ResultController extends Activity {
             oSWriter.write(String.valueOf(mDl) + LINE_END);
             oSWriter.write(String.valueOf(mN) + LINE_END);
 
-            for (int i = 0; i < mRealCurveLen; ++i){
-                oSWriter.write(String.valueOf(mCurveData[i]) + LINE_END);
+            int curveLen = mCurveData.size();
+            for (int i = 0; i < curveLen; ++i){
+                oSWriter.write(String.valueOf(mCurveData.get(i)) + LINE_END);
             }
 
             oSWriter.flush();
@@ -409,9 +424,6 @@ public class ResultController extends Activity {
         }
 
         // TODO SQLite Method
-
-
-
 
     }
 
@@ -533,7 +545,6 @@ public class ResultController extends Activity {
                         InputStreamReader inSReader = new InputStreamReader(new FileInputStream(fileToRead));
                         BufferedReader bufReader = new BufferedReader(inSReader);
                         String line = "";
-                        int dataNum = 0;
                         if ((line = bufReader.readLine()) != null) {
                             mOperator = line;
                         }
@@ -568,10 +579,14 @@ public class ResultController extends Activity {
                             mN = Integer.parseInt(line);
                         }
 
+                        if (!mCurveData.isEmpty()) {
+                            mCurveData.clear();
+                        }
+                        int dataNum = 0;
                         while((line = bufReader.readLine()) != null){
                             int dataTmp = Integer.parseInt(line);
                             if (dataNum + 1 < Common.MAX_CURVE_LEN){
-                                mCurveData[dataNum] = dataTmp;
+                                mCurveData.add(dataTmp);
                                 dataNum++;
                             } else{
                                 addLog("到达数据容量");
@@ -579,9 +594,9 @@ public class ResultController extends Activity {
                             }
 
                         }
-                        mRealCurveLen = dataNum;
+//                        mRealCurveLen = dataNum;
 
-                        canUpdateResult = true;
+//                        canUpdateResult = true;
                         mUpdateDataUI();
                         mDrawCurve();
 
@@ -608,15 +623,15 @@ public class ResultController extends Activity {
             return;
         }
 
-        double datatmp = (double) mCnt / Common.SCALE;
+        double datatmp = (double) mCnt;
         String str = String.format("%.1f",datatmp);
         edtCnt.setText(str);
 
-        datatmp = (double) mLoss / Common.SCALE;
+        datatmp = (double) mLoss / Common.SCALE / 10;
         str = String.format("%.4f", datatmp);
         edtLoss.setText(str);
 
-        datatmp = (double) mDl / Common.SCALE;
+        datatmp = (double) mDl / Common.SCALE / 10;
         str = String.format("%.4f", datatmp);
         edtDL.setText(str);
 
@@ -629,13 +644,13 @@ public class ResultController extends Activity {
         tvOperartor.setText(Common.OPERATOR + mOperator);
         tvMeasureDate.setText(Common.MEASURE_TIME + mMeasureDate);
 
-        addLog("数据更新成功");
+        addLog("RESULT数据更新成功");
     }
 
     // 仅用在画波形时
     private int findMaxer()
     {
-        int maxer = Math.abs(mCurveData[0]);
+        int maxer = Math.abs(mCurveData.get(0));
         for (int i : mCurveData){
             int tmp = Math.abs(i);
             if (tmp > maxer) {
@@ -651,15 +666,17 @@ public class ResultController extends Activity {
             mToastMaker("目前无法更新数据和测量结果");
             return;
         }
-        if (mRealCurveLen > 0){
+        if (!mCurveData.isEmpty()){
             try{
                 ArrayList<String> xVal = new ArrayList<>();
                 ArrayList<Entry> yVal = new ArrayList<>();
 
                 int maxer = findMaxer();
                 maxer = (maxer == 0) ? 1 : maxer;
-                for(int i = 0; i < mRealCurveLen; ++i){
-                    float tmpVal = 1 - (float) Math.abs(mCurveData[i]) / maxer;
+                int curveDataLen = mCurveData.size();
+                for(int i = 0; i < curveDataLen; ++i){
+//                    float tmpVal = 1 - (float) Math.abs(mCurveData.get(i)) / maxer;
+                    float tmpVal = (float) Math.abs(mCurveData.get(i)) / maxer;
                     yVal.add(new Entry(tmpVal, i));
                     xVal.add("" + (i+1));
                 }
@@ -668,7 +685,7 @@ public class ResultController extends Activity {
                 dataSet.setColor(Color.GREEN);
                 dataSet.setLineWidth(3f);
                 dataSet.setDrawCircles(false);
-                dataSet.setCubicIntensity(0.6f);
+//                dataSet.setCubicIntensity(0.6f);
 
                 LineData data = new LineData(xVal, dataSet);
                 mCurveDrawer.setDescription("");
@@ -683,7 +700,7 @@ public class ResultController extends Activity {
             }
         }
 
-        canUpdateResult = false;
+//        canUpdateResult = false;
 
     }
 
@@ -749,22 +766,39 @@ public class ResultController extends Activity {
                             int nRecv = 0;
                             while(bConnect) {
                                 try {
-                                    Log.e(Common.TAG, "Start Recv" + String.valueOf(mmInStream.available()));
-                                    nRecv = mmInStream.read(bufRev);
-                                    if (nRecv < 1) {
-                                        Log.e(Common.TAG, "Recving Short");
+                                    Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(mmInStream.available()) + "bytes");
+                                    int streamLenAval = mmInStream.available();
+                                    if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
                                         Thread.sleep(1000);
                                         continue;
                                     }
 
+                                    if (streamLenAval > Common.RESULT_AND_DATA_LEN) {
+                                        Log.e(Common.TAG, "too much data");
+                                        // TODO send resend commend
+                                        byte[] flushByte = new byte[streamLenAval];
+                                        nRecv = mmInStream.read(flushByte); // flush inputstream
+                                        continue;
+                                    }
+
+                                    // TODO proc data in time
+
+                                    nRecv = mmInStream.read(bufRev);
+//                                    if (nRecv < 1) {
+//                                        Log.e(Common.TAG, "Recving Short");
+//                                        Thread.sleep(1000);
+//                                        continue;
+//                                    }
+
                                     byte[] nPacket = new byte[nRecv];
                                     System.arraycopy(bufRev, 0, nPacket, 0, nRecv);
-                                    Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
+
+//                                    Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
 //                                    nRecved += nRecv;
 //                                    canUpdateResult = true;
-                                    if (nRecv < Common.RECEIVE_DATA_SECTION_LEN + 4 && nNeed > 0) {
-                                        Thread.sleep(1000);
-                                    }
+//                                    if (nRecv < Common.RECEIVE_DATA_SECTION_LEN + 4 && nNeed > 0) {
+//                                        Thread.sleep(1000);
+//                                    }
 
                                     if(nNeed > 0 && nRecved < nNeed)
                                         mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
@@ -817,26 +851,31 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
-                    if (nRecved >= nNeed || nNeed == 0) {
-                        break;
-                    }
+//                    if (nRecved >= nNeed || nNeed == 0) {
+//                        break;
+//                    }
 
-                    byte[] bBuf = (byte[]) msg.obj;
-                    parseRevData(bBuf, msg.arg1);
+                    byte[] bBuf = (byte[]) msg.obj; // 848 bytes data
 
-                    String strRecv = bytesToString(bBuf, msg.arg1);
-                    Log.d(Common.TAG, strRecv);
+                    Log.d(Common.TAG, "Recvd bytes: " + String.valueOf(msg.arg1));
+
+                    parseRevData(bBuf, msg.arg1); // ought to contain 848 bytes
+
+//                    for (int i = 0; i < msg.arg1; ++i) {
+//                        String str = Integer.toHexString(0xff & bBuf[i]);
+//                        addLog(str);
+//                    }
 
                     // 接收成功重置所需要的数据长度和已接受的长度
-                    if (nRecved >= nNeed && nNeed != 0) {
-                        nRecved = 0;
-                        nNeed = 0;
-                    }
+//                    if (nRecved >= nNeed && nNeed != 0) {
+//                        nRecved = 0;
+//                        nNeed = 0;
+//                    }
 
-                    if (canUpdateResult) {
-                        mUpdateDataUI();
-                        mDrawCurve();
-                    }
+//                    if (canUpdateResult) {
+//                        mUpdateDataUI();
+//                        mDrawCurve();
+//                    }
 
                     break;
                 case Common.MESSAGE_TOAST:
@@ -849,78 +888,262 @@ public class ResultController extends Activity {
 
     };
 
+    private void parseSection(byte[] section, int len) {
+
+    }
+
     private void parseRevData(byte[] revByteBuf, int len) {
         if (nNeed == 0 || nRecved >= nNeed) {
             return;
         }
 
-        if (revByteBuf[0] != PKGHEAD[0] || revByteBuf[1] != PKGHEAD[1]) {
+        if (len < Common.RESULT_AND_DATA_LEN) {
+            addLog("not enough data");
+            nNeed = 0;
+            nRecved = 0; // need to resend
             return;
         }
 
-        if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_DATA) {
-            int sectionLen = Common.RECEIVE_DATA_SECTION_LEN;
-            byte[] dataBuf = new byte[sectionLen];
-            // TODO whether the data length of revBuf is less than 100;
-            if (revByteBuf.length - 4 < sectionLen) {
-                sectionLen = revByteBuf.length - 4;
+        int idx = 0;
+        Boolean isDataHead1 = false;
+        Boolean isDataHead = false;
+        while(idx < len) {
+            switch (revByteBuf[idx]) {
+                case (byte) 0xA5:
+                    isDataHead1 = true;
+                    break;
+                case 0x5A:
+                    if (isDataHead1) {
+                        isDataHead = true;
+                    }
+                    break;
+                case 0:
+                    try {
+                        if (isDataHead) {
+                            int revResLen = Common.RECEIVE_DATA_RESULT_LEN;
+                            byte[] resultSection = new byte[revResLen];
+                            System.arraycopy(revByteBuf, idx-2, resultSection, 0, revResLen);
+                            byte checkSum = mGenCheckSum(resultSection, revResLen-1);
+                            if (checkSum == resultSection[revResLen-1]) { // data correct
+                                int dataTmp = (int) ((resultSection[3] << 24) | (resultSection[4] << 16) | (resultSection[5] << 8) | (resultSection[6] & 0xff));
+                                mDl = dataTmp;
+                                dataTmp = (int) ((resultSection[7] << 24) | (resultSection[8] << 16) | (resultSection[9] << 8) | (resultSection[10] & 0xff));
+                                mLoss = dataTmp;
+                                dataTmp = (int) ((resultSection[11] << 24) | (resultSection[12] << 16) | (resultSection[13] << 8) | (resultSection[14] & 0xff));
+                                mCnt = dataTmp;
+                                nRecved += revResLen;
+                                mUpdateDataUI();
+
+                                idx += revResLen - 3; // -1 for ++idx out of switch
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(Common.TAG, "error in proc RESULT DATA");
+                    }
+
+                    break;
+                default:
+                    try {
+                        if (revByteBuf[idx] > 0 && revByteBuf[idx] < 9) {
+                            if (isDataHead) {
+                                int revDataLen = Common.RECEIVE_DATA_SECTION_LEN;
+                                if (len - idx - 1 < revDataLen) { // data left not enough to generate data section (104)
+                                    break;
+                                }
+
+                                byte[] dataSection = new byte[revDataLen];
+                                System.arraycopy(revByteBuf, idx-2, dataSection, 0, revDataLen);
+                                byte checkSum = mGenCheckSum(dataSection, revDataLen-1);
+//                                if ((!mCurveData.isEmpty()) && (revByteBuf[idx] > 1) && (mCurveData.size()/100 != revByteBuf[idx] - 1)) {
+//                                    break;
+//                                }
+
+//                                if (checkSum == dataSection[revDataLen-1]) {
+                                if (true) {
+                                    if (dataSection[2] == 1) {
+                                        mCurveData.clear(); // init the mCurveData when first data section received
+                                    }
+
+                                    // push 100 data to mCurveData
+                                    int curveDataLen = mCurveData.size();
+                                    if (curveDataLen / 50 != revByteBuf[idx] - 1) {
+                                        Log.e(Common.TAG, "unmatch: not the correct section");
+                                        break;
+                                    }
+
+                                    for (int i = 3; i < revDataLen-2; i += 2) {
+                                        int dataTmp =  (int) ((dataSection[i] << 8) | (dataSection[i+1] & 0xff)); // i + 1 take rask to overflow
+                                        mCurveData.add(dataTmp);
+
+                                        // test
+                                        addLog(String.valueOf(dataTmp));
+                                    }
+                                    nRecved += revDataLen;
+                                    mDrawCurve();
+                                    if (mCurveData.size() == Common.MAX_CURVE_LEN || dataSection[2] == 8) { // not rub
+                                        mDrawCurve();
+                                    }
+                                    idx = idx + revDataLen - 3; // -1 for ++idx out of switch
+
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(Common.TAG, "error in proc Curve Data");
+                    }
+                    break;
+
             }
 
-            System.arraycopy(revByteBuf, 3, dataBuf, 0, sectionLen);
-            byte checkSumSection = mGenCheckSum(dataBuf, sectionLen);
-            if (checkSumSection != revByteBuf[revByteBuf.length-1]) {
-                // TODO ask for resend
-                return;
-            }
-
-            for (int i = 0; i < sectionLen-1; i += 2) {
-                int dataTmp =  (int) ((dataBuf[i] << 8) | (dataBuf[i+1] & 0xff)); // i + 1 take rask to overflow
-                mCurveData[nRecved] = dataTmp;
-                nRecved += 2;   
-            }
-
-            if (nRecved >= nNeed) {
-                Log.e(Common.TAG, "error: curve data overflow");
-            }
-
-        } else if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_RESULT) {
-            int resultLen = Common.RECEIVE_DATA_RESULT_LEN;
-            if (revByteBuf.length - 4 < resultLen) {
-                // TODO ask for resend
-                Log.e(Common.TAG, "received byte error too short");
-                return;
-            }
-
-            byte[] dataBuf = new byte[resultLen];
-            System.arraycopy(revByteBuf, 3, dataBuf, 0, resultLen);
-            byte checkSumResult = mGenCheckSum(dataBuf, resultLen);
-            if (checkSumResult != revByteBuf[revByteBuf.length-1]) {
-                // TODO ask for resend
-                Log.e(Common.TAG, "CRC ummatched");
-                return;
-            }
-
-            int dataTmp = (int) ((dataBuf[0] << 8) | (dataBuf[1] & 0xff));
-            mCnt = dataTmp;
-            dataTmp = (int) ((dataBuf[2] << 8) | (dataBuf[3] & 0xff));
-            mLoss = dataTmp;
-            dataTmp = (int) ((dataBuf[4] << 8) | (dataBuf[5] & 0xff));
-            mDl = dataTmp;
-            nRecved += 6;
-
-            if (nRecved < nNeed) {
-                Log.e(Common.TAG, "data lost");
-                nRecved = 0;
-                nNeed = Common.RESULT_DATA_LEN;
-                return;
-            }
-
-            canUpdateResult = true;
-        } else {
-            // TODO ask for resend
-            Log.e(Common.TAG, "data tag ummatch");
-            return;
+            ++idx;
         }
+
+        // if (revByteBuf[0] != PKGHEAD[0] || revByteBuf[1] != PKGHEAD[1]) {
+        //     Log.e(Common.TAG, "error un matched DATA HEAD");
+        //     return;
+        // }
+
+        // byte checkSumResult = mGenCheckSum(revByteBuf, len);
+        // if (checkSumResult != revByteBuf[len-1]) {
+        //     // TODO ask for resend
+
+        //     Log.e(Common.TAG, "CRC ummatched");
+        //     return;
+        // }
+
+        // if (revByteBuf[2] == Common.RECEIVE_TYPE_RESULT) {
+        //     int resultLen = Common.RECEIVE_DATA_RESULT_LEN;
+        //     byte[] dataBuf = new byte[resultLen];
+        //     System.arraycopy(revByteBuf, 3, dataBuf, 0, resultLen); // not need to copy
+
+        //     int dataTmp = (int) ((dataBuf[0] << 24) | (dataBuf[1] << 16) | (dataBuf[2] << 8) | (dataBuf[3] & 0xff));
+        //     mCnt = dataTmp;
+        //     dataTmp = (int) ((dataBuf[4] << 24) | (dataBuf[5] << 16) | (dataBuf[6] << 8) | (dataBuf[7] & 0xff));
+        //     mLoss = dataTmp;
+        //     dataTmp = (int) ((dataBuf[8] << 24) | (dataBuf[9] << 16) | (dataBuf[10] << 8) | (dataBuf[11] & 0xff));
+        //     mDl = dataTmp;
+        //     nRecved += 6;
+
+        //     // for debug
+        //     for (int i = 0; i < resultLen; ++i) {
+        //         String str = Integer.toHexString(0xff & dataBuf[i]);
+        //         addLog(str);
+        //     }
+
+        //     addLog(String.valueOf(mCnt) + "/" + String.valueOf(mLoss) + "/" + String.valueOf(mDl) + "\nfinished received data");
+
+        // } else if (revByteBuf[2] > 0) {
+        //     if (revByteBuf[2] == 0x01 && isStartRecv == 0) {
+        //         isStartRecv = 1;
+        //     }
+
+        //     if (++isStartRecv != revByteBuf[2]) {
+        //         Log.e(Common.TAG, "wrong data or lost data");
+        //         return;
+        //     }
+
+        //     int sectionLen = Common.RECEIVE_DATA_SECTION_LEN;
+        //     byte[] dataBuf = new byte[sectionLen];
+        //     System.arraycopy(revByteBuf, 3, dataBuf, 0, sectionLen);
+        //     for (int i = 0; i < sectionLen-1; i += 2) {
+        //         int dataTmp =  (int) ((dataBuf[i] << 8) | (dataBuf[i+1] & 0xff)); // i + 1 take rask to overflow
+        //         mCurveData[nRecved] = dataTmp;
+        //         nRecved += 2;
+        //         // test
+        //         addLog(String.valueOf(dataTmp));
+        //     }
+
+        //     // test
+        //     addLog("Received: " + String.valueOf(nRecved) + "bytes");
+        //     for(int i = 0; i < sectionLen; ++i) {
+        //         addLog(Integer.toHexString(dataBuf[i]));
+        //     }
+
+        //     if (isStartRecv == Common.MAX_CURVE_LEN*2 / Common.RECEIVE_DATA_SECTION_LEN) {
+        //         Log.d(Common.TAG, "curve data recved finished");
+        //         mDrawCurve();
+        //         isStartRecv = 0;
+        //     }
+
+        // }
+
+        if (nRecved >= nNeed && nNeed != 0) {
+            nRecved = 0;
+            nNeed = 0;
+        }
+
+
+//        if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_DATA) {
+//            int sectionLen = Common.RECEIVE_DATA_SECTION_LEN;
+//            byte[] dataBuf = new byte[sectionLen];
+//            // TODO whether the data length of revBuf is less than 100;
+//            if (revByteBuf.length - 4 < sectionLen) {
+//                sectionLen = revByteBuf.length - 4;
+//            }
+//
+//            System.arraycopy(revByteBuf, 3, dataBuf, 0, sectionLen);
+//            byte checkSumSection = mGenCheckSum(dataBuf, sectionLen);
+//            if (checkSumSection != revByteBuf[revByteBuf.length-1]) {
+//                // TODO ask for resend
+//                return;
+//            }
+//
+//            for (int i = 0; i < sectionLen-1; i += 2) {
+//                int dataTmp =  (int) ((dataBuf[i] << 8) | (dataBuf[i+1] & 0xff)); // i + 1 take rask to overflow
+//                mCurveData[nRecved] = dataTmp;
+//                nRecved += 2;
+//                // test
+//                addLog(String.valueOf(dataTmp));
+//            }
+//
+//            addLog("Received: " + String.valueOf(nRecved) + "bytes");
+//
+//            if (nRecved >= nNeed) {
+//                Log.e(Common.TAG, "error: curve data overflow");
+//            }
+//
+//        } else if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_RESULT) {
+//            int resultLen = Common.RECEIVE_DATA_RESULT_LEN;
+//            if (revByteBuf.length - 4 < resultLen) {
+//                // TODO ask for resend
+//                Log.e(Common.TAG, "received byte error too short");
+//                return;
+//            }
+//
+//            byte[] dataBuf = new byte[resultLen];
+//            System.arraycopy(revByteBuf, 3, dataBuf, 0, resultLen);
+//            byte checkSumResult = mGenCheckSum(dataBuf, resultLen);
+//            if (checkSumResult != revByteBuf[revByteBuf.length-1]) {
+//                // TODO ask for resend
+//                Log.e(Common.TAG, "CRC ummatched");
+//                return;
+//            }
+//
+//            int dataTmp = (int) ((dataBuf[0] << 8) | (dataBuf[1] & 0xff));
+//            mCnt = dataTmp;
+//            dataTmp = (int) ((dataBuf[2] << 8) | (dataBuf[3] & 0xff));
+//            mLoss = dataTmp;
+//            dataTmp = (int) ((dataBuf[4] << 8) | (dataBuf[5] & 0xff));
+//            mDl = dataTmp;
+//            nRecved += 6;
+//
+//            if (nRecved < nNeed) {
+//                Log.e(Common.TAG, "data lost");
+//                nRecved = 0;
+//                nNeed = Common.RESULT_DATA_LEN;
+//                return;
+//            }
+//
+//            canUpdateResult = true;
+//
+//            // test
+//            addLog(String.valueOf(mCnt) + "/" + String.valueOf(mLoss) + "/" + String.valueOf(mDl) + "\nfinished received data");
+//
+//        } else {
+//            // TODO ask for resend
+//            Log.e(Common.TAG, "data tag ummatch");
+//            return;
+//        }
 
     }
 
@@ -985,9 +1208,9 @@ public class ResultController extends Activity {
                     return;
                 }
                 if (bConnect) {
-                    edtCnt.setText("0");
-                    edtLoss.setText("0.0000");
-                    edtDL.setText("0.0000");
+//                    edtCnt.setText("0");
+//                    edtLoss.setText("0.0000");
+//                    edtDL.setText("0.0000");
                     byte[] sendCmd = mGenMeasureCmd();
 
                     // TODO add command data
@@ -1107,8 +1330,7 @@ public class ResultController extends Activity {
     }
 
     public static String bytesToString(byte[] b, int length) {
-        // StringBuffer result = new StringBuffer("");
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer("");
         for (int i = 0; i < length; i++) {
             result.append((char) (b[i]));
         }
@@ -1123,6 +1345,12 @@ public class ResultController extends Activity {
                 svLogger.fullScroll(ScrollView.FOCUS_DOWN);
             }
         });
+
+        if (tvLog.length() > 300) {
+            tvLog.setText("");
+        }
+
+
     }
 
     private void setMeasureRange(int rangeCode) {
