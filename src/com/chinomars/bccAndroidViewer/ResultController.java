@@ -628,11 +628,11 @@ public class ResultController extends Activity {
         edtCnt.setText(str);
 
         datatmp = (double) mLoss / Common.SCALE / 10;
-        str = String.format("%.4f", datatmp);
+        str = String.format("%.2f", datatmp);
         edtLoss.setText(str);
 
         datatmp = (double) mDl / Common.SCALE / 10;
-        str = String.format("%.4f", datatmp);
+        str = String.format("%.5f", datatmp);
         edtDL.setText(str);
 
         if (mN >= Common.MIN_N && mN <= Common.MAX_N){
@@ -661,6 +661,18 @@ public class ResultController extends Activity {
         return maxer;
     }
 
+    private int findMiner() {
+        int miner = Math.abs(mCurveData.get(0));
+        for (int i : mCurveData) {
+            int tmp = Math.abs(i);
+            if (tmp < miner) {
+                miner = tmp;
+            }
+        }
+
+        return miner;
+    }
+
     private void mDrawCurve() {
         if (!canUpdateResult) {
             mToastMaker("目前无法更新数据和测量结果");
@@ -672,11 +684,16 @@ public class ResultController extends Activity {
                 ArrayList<Entry> yVal = new ArrayList<>();
 
                 int maxer = findMaxer();
-                maxer = (maxer == 0) ? 1 : maxer;
+                int miner = findMiner();
+                maxer = (maxer == miner) ? 1 : (maxer - miner);
                 int curveDataLen = mCurveData.size();
                 for(int i = 0; i < curveDataLen; ++i){
+                    if (mCurveData.get(i) == 0) {
+                        Log.d(Common.TAG, "got a ZERO here at " + String.valueOf(i));
+                        mAlert("got a ZERO here at " + String.valueOf(i));
+                    }
 //                    float tmpVal = 1 - (float) Math.abs(mCurveData.get(i)) / maxer;
-                    float tmpVal = (float) Math.abs(mCurveData.get(i)) / maxer;
+                    float tmpVal = (float) (Math.abs(mCurveData.get(i)) - miner) / maxer;
                     yVal.add(new Entry(tmpVal, i));
                     xVal.add("" + (i+1));
                 }
@@ -958,8 +975,8 @@ public class ResultController extends Activity {
 //                                    break;
 //                                }
 
-//                                if (checkSum == dataSection[revDataLen-1]) {
-                                if (true) {
+                                if (checkSum == dataSection[revDataLen-1]) {
+//                                if (true) {
                                     if (dataSection[2] == 1) {
                                         mCurveData.clear(); // init the mCurveData when first data section received
                                     }
@@ -998,152 +1015,10 @@ public class ResultController extends Activity {
             ++idx;
         }
 
-        // if (revByteBuf[0] != PKGHEAD[0] || revByteBuf[1] != PKGHEAD[1]) {
-        //     Log.e(Common.TAG, "error un matched DATA HEAD");
-        //     return;
-        // }
-
-        // byte checkSumResult = mGenCheckSum(revByteBuf, len);
-        // if (checkSumResult != revByteBuf[len-1]) {
-        //     // TODO ask for resend
-
-        //     Log.e(Common.TAG, "CRC ummatched");
-        //     return;
-        // }
-
-        // if (revByteBuf[2] == Common.RECEIVE_TYPE_RESULT) {
-        //     int resultLen = Common.RECEIVE_DATA_RESULT_LEN;
-        //     byte[] dataBuf = new byte[resultLen];
-        //     System.arraycopy(revByteBuf, 3, dataBuf, 0, resultLen); // not need to copy
-
-        //     int dataTmp = (int) ((dataBuf[0] << 24) | (dataBuf[1] << 16) | (dataBuf[2] << 8) | (dataBuf[3] & 0xff));
-        //     mCnt = dataTmp;
-        //     dataTmp = (int) ((dataBuf[4] << 24) | (dataBuf[5] << 16) | (dataBuf[6] << 8) | (dataBuf[7] & 0xff));
-        //     mLoss = dataTmp;
-        //     dataTmp = (int) ((dataBuf[8] << 24) | (dataBuf[9] << 16) | (dataBuf[10] << 8) | (dataBuf[11] & 0xff));
-        //     mDl = dataTmp;
-        //     nRecved += 6;
-
-        //     // for debug
-        //     for (int i = 0; i < resultLen; ++i) {
-        //         String str = Integer.toHexString(0xff & dataBuf[i]);
-        //         addLog(str);
-        //     }
-
-        //     addLog(String.valueOf(mCnt) + "/" + String.valueOf(mLoss) + "/" + String.valueOf(mDl) + "\nfinished received data");
-
-        // } else if (revByteBuf[2] > 0) {
-        //     if (revByteBuf[2] == 0x01 && isStartRecv == 0) {
-        //         isStartRecv = 1;
-        //     }
-
-        //     if (++isStartRecv != revByteBuf[2]) {
-        //         Log.e(Common.TAG, "wrong data or lost data");
-        //         return;
-        //     }
-
-        //     int sectionLen = Common.RECEIVE_DATA_SECTION_LEN;
-        //     byte[] dataBuf = new byte[sectionLen];
-        //     System.arraycopy(revByteBuf, 3, dataBuf, 0, sectionLen);
-        //     for (int i = 0; i < sectionLen-1; i += 2) {
-        //         int dataTmp =  (int) ((dataBuf[i] << 8) | (dataBuf[i+1] & 0xff)); // i + 1 take rask to overflow
-        //         mCurveData[nRecved] = dataTmp;
-        //         nRecved += 2;
-        //         // test
-        //         addLog(String.valueOf(dataTmp));
-        //     }
-
-        //     // test
-        //     addLog("Received: " + String.valueOf(nRecved) + "bytes");
-        //     for(int i = 0; i < sectionLen; ++i) {
-        //         addLog(Integer.toHexString(dataBuf[i]));
-        //     }
-
-        //     if (isStartRecv == Common.MAX_CURVE_LEN*2 / Common.RECEIVE_DATA_SECTION_LEN) {
-        //         Log.d(Common.TAG, "curve data recved finished");
-        //         mDrawCurve();
-        //         isStartRecv = 0;
-        //     }
-
-        // }
-
         if (nRecved >= nNeed && nNeed != 0) {
             nRecved = 0;
             nNeed = 0;
         }
-
-
-//        if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_DATA) {
-//            int sectionLen = Common.RECEIVE_DATA_SECTION_LEN;
-//            byte[] dataBuf = new byte[sectionLen];
-//            // TODO whether the data length of revBuf is less than 100;
-//            if (revByteBuf.length - 4 < sectionLen) {
-//                sectionLen = revByteBuf.length - 4;
-//            }
-//
-//            System.arraycopy(revByteBuf, 3, dataBuf, 0, sectionLen);
-//            byte checkSumSection = mGenCheckSum(dataBuf, sectionLen);
-//            if (checkSumSection != revByteBuf[revByteBuf.length-1]) {
-//                // TODO ask for resend
-//                return;
-//            }
-//
-//            for (int i = 0; i < sectionLen-1; i += 2) {
-//                int dataTmp =  (int) ((dataBuf[i] << 8) | (dataBuf[i+1] & 0xff)); // i + 1 take rask to overflow
-//                mCurveData[nRecved] = dataTmp;
-//                nRecved += 2;
-//                // test
-//                addLog(String.valueOf(dataTmp));
-//            }
-//
-//            addLog("Received: " + String.valueOf(nRecved) + "bytes");
-//
-//            if (nRecved >= nNeed) {
-//                Log.e(Common.TAG, "error: curve data overflow");
-//            }
-//
-//        } else if (((int) revByteBuf[2]) == Common.RECEIVE_TYPE_RESULT) {
-//            int resultLen = Common.RECEIVE_DATA_RESULT_LEN;
-//            if (revByteBuf.length - 4 < resultLen) {
-//                // TODO ask for resend
-//                Log.e(Common.TAG, "received byte error too short");
-//                return;
-//            }
-//
-//            byte[] dataBuf = new byte[resultLen];
-//            System.arraycopy(revByteBuf, 3, dataBuf, 0, resultLen);
-//            byte checkSumResult = mGenCheckSum(dataBuf, resultLen);
-//            if (checkSumResult != revByteBuf[revByteBuf.length-1]) {
-//                // TODO ask for resend
-//                Log.e(Common.TAG, "CRC ummatched");
-//                return;
-//            }
-//
-//            int dataTmp = (int) ((dataBuf[0] << 8) | (dataBuf[1] & 0xff));
-//            mCnt = dataTmp;
-//            dataTmp = (int) ((dataBuf[2] << 8) | (dataBuf[3] & 0xff));
-//            mLoss = dataTmp;
-//            dataTmp = (int) ((dataBuf[4] << 8) | (dataBuf[5] & 0xff));
-//            mDl = dataTmp;
-//            nRecved += 6;
-//
-//            if (nRecved < nNeed) {
-//                Log.e(Common.TAG, "data lost");
-//                nRecved = 0;
-//                nNeed = Common.RESULT_DATA_LEN;
-//                return;
-//            }
-//
-//            canUpdateResult = true;
-//
-//            // test
-//            addLog(String.valueOf(mCnt) + "/" + String.valueOf(mLoss) + "/" + String.valueOf(mDl) + "\nfinished received data");
-//
-//        } else {
-//            // TODO ask for resend
-//            Log.e(Common.TAG, "data tag ummatch");
-//            return;
-//        }
 
     }
 
@@ -1208,9 +1083,10 @@ public class ResultController extends Activity {
                     return;
                 }
                 if (bConnect) {
-//                    edtCnt.setText("0");
-//                    edtLoss.setText("0.0000");
-//                    edtDL.setText("0.0000");
+                    edtCnt.setText("0.0");
+                    edtLoss.setText("0.00");
+                    edtDL.setText("0.00000");
+                    mCurveDrawer.clear();
                     byte[] sendCmd = mGenMeasureCmd();
 
                     // TODO add command data
