@@ -44,9 +44,11 @@ public class ResultController extends Activity {
     private OutputStream mmOutStream;
 
     LineChart mCurveDrawer;
+//    ProgressBar mMeasureTimmer;
     ScrollView svLogger;
     TextView tvTitle, tvLog, tvDl;
     TextView tvOperartor, tvMeasureDate;
+    TextView tvProgresser;
     EditText edtCnt, edtLoss, edtDL, edtN;
     SeekBar sekbN;
     RadioGroup rdiogRangeSetter;
@@ -56,7 +58,7 @@ public class ResultController extends Activity {
     BluetoothSocket btSocket = null;
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
-    int mCnt = 0, mLoss = 0, mDl = 0, mN = 0;
+    int mCnt = 0, mLoss = 0, mDl = 0, mN = Common.MIN_N;
 //    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
     Vector<Integer> mCurveData = new Vector<>();
 //    int mRealCurveLen = 0;
@@ -88,6 +90,7 @@ public class ResultController extends Activity {
 
         mCurveDrawer = (LineChart) this.findViewById(R.id.curve_drawer);
         mCurveDrawer.setOnLongClickListener(new LongClickEvent());
+//        mMeasureTimmer = (ProgressBar) this.findViewById(R.id.pbg_measuretimmer);
         svLogger = (ScrollView) this.findViewById(R.id.sv_logger);
 //        svLogger.setOnLongClickListener(new LongClickEvent());
         tvLog = (TextView) this.findViewById(R.id.tv_Log);
@@ -120,6 +123,7 @@ public class ResultController extends Activity {
         tvDl = (TextView) this.findViewById(R.id.txt_dl);
         tvOperartor = (TextView) this.findViewById(R.id.txt_operator);
         tvMeasureDate = (TextView) this.findViewById(R.id.txt_date);
+        tvProgresser = (TextView) this.findViewById(R.id.tv_progresser);
 
         Bundle bund = this.getIntent().getExtras();
         strName = bund.getString("NAME");
@@ -786,6 +790,8 @@ public class ResultController extends Activity {
                                     Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(mmInStream.available()) + "bytes");
                                     int streamLenAval = mmInStream.available();
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
+//                                        mSetProgressBar(streamLenAval);
+//                                        mSetProgressText(streamLenAval);
                                         Thread.sleep(1000);
                                         continue;
                                     }
@@ -871,7 +877,6 @@ public class ResultController extends Activity {
 //                    if (nRecved >= nNeed || nNeed == 0) {
 //                        break;
 //                    }
-
                     byte[] bBuf = (byte[]) msg.obj; // 848 bytes data
 
                     Log.d(Common.TAG, "Recvd bytes: " + String.valueOf(msg.arg1));
@@ -905,8 +910,15 @@ public class ResultController extends Activity {
 
     };
 
-    private void parseSection(byte[] section, int len) {
+    // set progressbar
+//    public void mSetProgressBar(int dataAvail) {
+//        int prog = dataAvail / Common.RESULT_AND_DATA_LEN * 100;
+//        mMeasureTimmer.setProgress(prog);
+//    }
 
+    public void mSetProgressText(int dataAvail) {
+        int prog = dataAvail / Common.RESULT_AND_DATA_LEN * 100;
+        tvProgresser.setText(String.valueOf(prog) + "%");
     }
 
     private void parseRevData(byte[] revByteBuf, int len) {
@@ -964,19 +976,15 @@ public class ResultController extends Activity {
                         if (revByteBuf[idx] > 0 && revByteBuf[idx] < 9) {
                             if (isDataHead) {
                                 int revDataLen = Common.RECEIVE_DATA_SECTION_LEN;
-                                if (len - idx - 1 < revDataLen) { // data left not enough to generate data section (104)
-                                    break;
-                                }
 
                                 byte[] dataSection = new byte[revDataLen];
                                 System.arraycopy(revByteBuf, idx-2, dataSection, 0, revDataLen);
                                 byte checkSum = mGenCheckSum(dataSection, revDataLen-1);
-//                                if ((!mCurveData.isEmpty()) && (revByteBuf[idx] > 1) && (mCurveData.size()/100 != revByteBuf[idx] - 1)) {
+//                                if ((!mCurveData.isEmpty()) && (revByteBuf[idx] > 1) && (mCurveData.size()/50 != revByteBuf[idx] - 1)) {
 //                                    break;
 //                                }
 
                                 if (checkSum == dataSection[revDataLen-1]) {
-//                                if (true) {
                                     if (dataSection[2] == 1) {
                                         mCurveData.clear(); // init the mCurveData when first data section received
                                     }
@@ -996,9 +1004,11 @@ public class ResultController extends Activity {
                                         addLog(String.valueOf(dataTmp));
                                     }
                                     nRecved += revDataLen;
-                                    mDrawCurve();
+//                                    mDrawCurve();
                                     if (mCurveData.size() == Common.MAX_CURVE_LEN || dataSection[2] == 8) { // not rub
                                         mDrawCurve();
+//                                        mSetProgressBar(0);
+                                        mSetProgressText(0);
                                     }
                                     idx = idx + revDataLen - 3; // -1 for ++idx out of switch
 
@@ -1119,9 +1129,11 @@ public class ResultController extends Activity {
                 String recentTitle = tvTitle.getText().toString();
                 if (recentTitle.equals(Common.BCC_MODE_TITLE)) {
                     tvTitle.setText(Common.GXC_MODE_TITLE);
+                    tvDl.setText(Common.GXC_MODE_L);
                     workMode = Common.MEASURE_MODE_GXC;
                 } else {
                     tvTitle.setText(Common.BCC_MODE_TITLE);
+                    tvDl.setText(Common.BCC_MODE_DL);
                     workMode = Common.MEASURE_MODE_BCC;
                 }
             }

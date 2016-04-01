@@ -58,8 +58,8 @@ public class Common {
     public static final String BTN_YES = "确定";
     public static final String BCC_MODE_TITLE = "干涉型臂长差测量软件";
     public static final String GXC_MODE_TITLE = "光纤链路长度测量软件";
-    public static final String BCC_MODE_DL = "臂长差";
-    public static final String GXC_MODE_L = "长度";
+    public static final String BCC_MODE_DL = "臂长差：";
+    public static final String GXC_MODE_L = "长度：";
     public static final String OPERATOR = "操作人：";
     public static final String MEASURE_TIME = "测量时间：";
 
