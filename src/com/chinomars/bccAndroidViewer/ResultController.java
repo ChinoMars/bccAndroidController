@@ -70,7 +70,7 @@ public class ResultController extends Activity {
     int nNeed = 0;
     byte[] bRecv = new byte[1024];
     int nRecved = 0;
-    int isStartRecv = 0;
+    Boolean ifResetTimmer = false;
 //    CRC32 checkSum;
     Boolean canUpdateResult = true;
     String mFileName = null; // set the file name to save
@@ -785,14 +785,28 @@ public class ResultController extends Activity {
                         public void run() {
                             byte[] bufRev = new byte[1024];
                             int nRecv = 0;
+                            int outTimmer = 0;
                             while(bConnect) {
                                 try {
+                                    if (ifResetTimmer) {
+                                        outTimmer = 0;
+                                        ifResetTimmer = false;
+                                    }
+
                                     Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(mmInStream.available()) + "bytes");
                                     int streamLenAval = mmInStream.available();
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
 //                                        mSetProgressBar(streamLenAval);
-                                        mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
+                                        if (nNeed > 0) {
+                                            mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
+                                            if (outTimmer > Common.TIME_OUT) {
+                                                mAlert("Time Out!");
+                                                // TODO time out to flush inputstream and ask for resending
+
+                                            }
+                                        }
                                         Thread.sleep(1000);
+                                        outTimmer++;
                                         continue;
                                     }
 
@@ -807,21 +821,9 @@ public class ResultController extends Activity {
                                     // TODO proc data in time
 
                                     nRecv = mmInStream.read(bufRev);
-//                                    if (nRecv < 1) {
-//                                        Log.e(Common.TAG, "Recving Short");
-//                                        Thread.sleep(1000);
-//                                        continue;
-//                                    }
 
                                     byte[] nPacket = new byte[nRecv];
                                     System.arraycopy(bufRev, 0, nPacket, 0, nRecv);
-
-//                                    Log.e(Common.TAG, "Recv:" + String.valueOf(nRecved));
-//                                    nRecved += nRecv;
-//                                    canUpdateResult = true;
-//                                    if (nRecv < Common.RECEIVE_DATA_SECTION_LEN + 4 && nNeed > 0) {
-//                                        Thread.sleep(1000);
-//                                    }
 
                                     if(nNeed > 0 && nRecved < nNeed)
                                         mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
@@ -874,9 +876,6 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
-//                    if (nRecved >= nNeed || nNeed == 0) {
-//                        break;
-//                    }
                     byte[] bBuf = (byte[]) msg.obj; // 848 bytes data
 
                     Log.d(Common.TAG, "Recvd bytes: " + String.valueOf(msg.arg1));
@@ -1096,6 +1095,7 @@ public class ResultController extends Activity {
 
                     // TODO add command data
                     send(sendCmd);
+                    ifResetTimmer = true;
                 }
 
             } else if (v == btnParamSetter) {
