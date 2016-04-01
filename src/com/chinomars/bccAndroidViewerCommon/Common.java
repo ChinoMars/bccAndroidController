@@ -28,8 +28,8 @@ public class Common {
     public static final int MIN_N = 14400; // mim n
     public static final int MAX_N = 14700; // max n
     public static final double SCALE = 10000; // based on the MAX_N and MIN_N
-    public static final int RESULT_DATA_LEN = 812; // 待定 3 short int + 400 short int
-    public static final int RESULT_AND_DATA_LEN = 848;
+    public static final int RESULT_DATA_LEN = 812; // 待定 3 short int + 400 short int （弃）
+    public static final int RESULT_AND_DATA_LEN = 848; // 总数据长
     public static final int MAX_CURVE_LEN = 400;
     public static final int MAX_FILE_NUM = 999;
     public static final int FILE_SUFFIX_LEN = 3;
@@ -41,6 +41,8 @@ public class Common {
     public static final Integer MEASURE_MODE_UNKNOW = 0;
     public static final Integer MEASURE_MODE_BCC = 1;
     public static final Integer MEASURE_MODE_GXC = 2;
+    public static final Integer MESURE_MODE_CHECK_FREQ = 3; // 频带校准
+    public static final Integer MESURE_MODE_CHECK_LENGTH_TO_ZERO = 4; //长度校零
     public static final Integer MEASURE_RANGE_UNKNOW = 0;
     public static final Integer MEASURE_RANGE_LONG = 1;
     public static final Integer MEASURE_RANGE_MID = 2;

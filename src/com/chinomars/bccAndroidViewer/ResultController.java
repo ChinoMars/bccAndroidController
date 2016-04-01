@@ -116,6 +116,7 @@ public class ResultController extends Activity {
         btnReadData.setOnClickListener(new ClickEvent());
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
+        tvTitle.setOnClickListener(new ClickEvent());
         tvDl = (TextView) this.findViewById(R.id.txt_dl);
         tvOperartor = (TextView) this.findViewById(R.id.txt_operator);
         tvMeasureDate = (TextView) this.findViewById(R.id.txt_date);
@@ -692,15 +693,14 @@ public class ResultController extends Activity {
                         Log.d(Common.TAG, "got a ZERO here at " + String.valueOf(i));
                         mAlert("got a ZERO here at " + String.valueOf(i));
                     }
-//                    float tmpVal = 1 - (float) Math.abs(mCurveData.get(i)) / maxer;
-                    float tmpVal = (float) (Math.abs(mCurveData.get(i)) - miner) / maxer;
+                    float tmpVal = 1 - (float) (Math.abs(mCurveData.get(i)) - miner) / maxer;
                     yVal.add(new Entry(tmpVal, i));
                     xVal.add("" + (i+1));
                 }
 
                 LineDataSet dataSet = new LineDataSet(yVal, "频谱波形");
                 dataSet.setColor(Color.GREEN);
-                dataSet.setLineWidth(3f);
+                dataSet.setLineWidth(1f);
                 dataSet.setDrawCircles(false);
 //                dataSet.setCubicIntensity(0.6f);
 
@@ -1115,6 +1115,15 @@ public class ResultController extends Activity {
                 tvLog.setVisibility(View.INVISIBLE);
                 mCurveDrawer.setVisibility(VISIBLE);
 
+            } else if (v == tvTitle) {
+                String recentTitle = tvTitle.getText().toString();
+                if (recentTitle.equals(Common.BCC_MODE_TITLE)) {
+                    tvTitle.setText(Common.GXC_MODE_TITLE);
+                    workMode = Common.MEASURE_MODE_GXC;
+                } else {
+                    tvTitle.setText(Common.BCC_MODE_TITLE);
+                    workMode = Common.MEASURE_MODE_BCC;
+                }
             }
         }
     }
