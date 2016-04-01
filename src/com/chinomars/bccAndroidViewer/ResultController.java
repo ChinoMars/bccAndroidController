@@ -791,7 +791,7 @@ public class ResultController extends Activity {
                                     int streamLenAval = mmInStream.available();
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
 //                                        mSetProgressBar(streamLenAval);
-//                                        mSetProgressText(streamLenAval);
+                                        mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
                                         Thread.sleep(1000);
                                         continue;
                                     }
@@ -905,16 +905,13 @@ public class ResultController extends Activity {
                         msg.getData().getString(Common.TOAST), 
                         Toast.LENGTH_SHORT).show();
                     break;
+                case Common.MESSAGE_UPDATE_PROGRESS:
+                    mSetProgressText(msg.arg1);
+                    break;
             }
         }
 
     };
-
-    // set progressbar
-//    public void mSetProgressBar(int dataAvail) {
-//        int prog = dataAvail / Common.RESULT_AND_DATA_LEN * 100;
-//        mMeasureTimmer.setProgress(prog);
-//    }
 
     public void mSetProgressText(int dataAvail) {
         int prog = dataAvail / Common.RESULT_AND_DATA_LEN * 100;
@@ -1004,10 +1001,8 @@ public class ResultController extends Activity {
                                         addLog(String.valueOf(dataTmp));
                                     }
                                     nRecved += revDataLen;
-//                                    mDrawCurve();
                                     if (mCurveData.size() == Common.MAX_CURVE_LEN || dataSection[2] == 8) { // not rub
                                         mDrawCurve();
-//                                        mSetProgressBar(0);
                                         mSetProgressText(0);
                                     }
                                     idx = idx + revDataLen - 3; // -1 for ++idx out of switch

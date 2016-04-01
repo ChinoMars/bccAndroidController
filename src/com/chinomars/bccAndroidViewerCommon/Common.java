@@ -20,6 +20,7 @@ public class Common {
     // C.P. plus
     public static final int MESSAGE_SEND_COMMAND = 12; // 发送协议
     public static final int MESSAGE_RECV_RESULT = 13; // 接收协议
+    public static final int MESSAGE_UPDATE_PROGRESS = 14; // update the progress bar
 
     // Static Setting
     public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
