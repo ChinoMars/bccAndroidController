@@ -44,7 +44,6 @@ public class ResultController extends Activity {
     private OutputStream mmOutStream;
 
     LineChart mCurveDrawer;
-//    ProgressBar mMeasureTimmer;
     ScrollView svLogger;
     TextView tvTitle, tvLog, tvDl;
     TextView tvOperartor, tvMeasureDate;
@@ -90,7 +89,6 @@ public class ResultController extends Activity {
 
         mCurveDrawer = (LineChart) this.findViewById(R.id.curve_drawer);
         mCurveDrawer.setOnLongClickListener(new LongClickEvent());
-//        mMeasureTimmer = (ProgressBar) this.findViewById(R.id.pbg_measuretimmer);
         svLogger = (ScrollView) this.findViewById(R.id.sv_logger);
 //        svLogger.setOnLongClickListener(new LongClickEvent());
         tvLog = (TextView) this.findViewById(R.id.tv_Log);
@@ -796,11 +794,10 @@ public class ResultController extends Activity {
                                     Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(mmInStream.available()) + "bytes");
                                     int streamLenAval = mmInStream.available();
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
-//                                        mSetProgressBar(streamLenAval);
                                         if (nNeed > 0) {
                                             mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
                                             if (outTimmer > Common.TIME_OUT) {
-                                                mAlert("Time Out!");
+//                                                mAlert("Time Out!");
                                                 // TODO time out to flush inputstream and ask for resending
 
                                             }
@@ -950,11 +947,11 @@ public class ResultController extends Activity {
                             System.arraycopy(revByteBuf, idx-2, resultSection, 0, revResLen);
                             byte checkSum = mGenCheckSum(resultSection, revResLen-1);
                             if (checkSum == resultSection[revResLen-1]) { // data correct
-                                int dataTmp = (int) ((resultSection[3] << 24) | (resultSection[4] << 16) | (resultSection[5] << 8) | (resultSection[6] & 0xff));
+                                int dataTmp = (int) (((resultSection[3]&0xff) << 24) | ((resultSection[4]&0xff) << 16) | ((resultSection[5]&0xff) << 8) | (resultSection[6] & 0xff));
                                 mDl = dataTmp;
-                                dataTmp = (int) ((resultSection[7] << 24) | (resultSection[8] << 16) | (resultSection[9] << 8) | (resultSection[10] & 0xff));
+                                dataTmp = (int) (((resultSection[7]&0xff) << 24) | ((resultSection[8]&0xff) << 16) | ((resultSection[9]&0xff) << 8) | (resultSection[10] & 0xff));
                                 mLoss = dataTmp;
-                                dataTmp = (int) ((resultSection[11] << 24) | (resultSection[12] << 16) | (resultSection[13] << 8) | (resultSection[14] & 0xff));
+                                dataTmp = (int) (((resultSection[11]&0xff) << 24) | ((resultSection[12]&0xff) << 16) | ((resultSection[13]&0xff) << 8) | (resultSection[14] & 0xff));
                                 mCnt = dataTmp;
                                 nRecved += revResLen;
                                 mUpdateDataUI();
