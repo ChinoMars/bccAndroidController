@@ -63,8 +63,8 @@ public class ResultController extends Activity {
 //    int mRealCurveLen = 0;
 
     Boolean bConnect = false;
-    String strName = null;
-    String strAddr = null;
+    String strName;
+    String strAddr;
     int workMode = Common.MEASURE_MODE_UNKNOW;
     int nNeed = 0;
     byte[] bRecv = new byte[1024];
@@ -72,13 +72,13 @@ public class ResultController extends Activity {
     Boolean ifResetTimmer = false;
 //    CRC32 checkSum;
     Boolean canUpdateResult = true;
-    String mFileName = null; // set the file name to save
-    String mOperator = null,
-            mProdType = null,
-            mProdId = null,
-            mProduceDate = null,
-            mMeasureDate = null,
-            mComment = null;
+    String mFileName; // set the file name to save
+    String mOperator,
+            mProdType,
+            mProdId,
+            mProduceDate,
+            mMeasureDate,
+            mComment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +90,7 @@ public class ResultController extends Activity {
         mCurveDrawer = (LineChart) this.findViewById(R.id.curve_drawer);
         mCurveDrawer.setOnLongClickListener(new LongClickEvent());
         svLogger = (ScrollView) this.findViewById(R.id.sv_logger);
-//        svLogger.setOnLongClickListener(new LongClickEvent());
+        svLogger.setOnLongClickListener(new LongClickEvent());
         tvLog = (TextView) this.findViewById(R.id.tv_Log);
         tvLog.setOnClickListener(new ClickEvent());
 
@@ -798,6 +798,7 @@ public class ResultController extends Activity {
                                             mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
                                             if (outTimmer > Common.TIME_OUT) {
 //                                                mAlert("Time Out!");
+                                                mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, 0, -1).sendToTarget();
                                                 // TODO time out to flush inputstream and ask for resending
 
                                             }
@@ -1121,11 +1122,11 @@ public class ResultController extends Activity {
                 String recentTitle = tvTitle.getText().toString();
                 if (recentTitle.equals(Common.BCC_MODE_TITLE)) {
                     tvTitle.setText(Common.GXC_MODE_TITLE);
-                    tvDl.setText(Common.GXC_MODE_L);
+//                    tvDl.setText(Common.GXC_MODE_L);
                     workMode = Common.MEASURE_MODE_GXC;
                 } else {
                     tvTitle.setText(Common.BCC_MODE_TITLE);
-                    tvDl.setText(Common.BCC_MODE_DL);
+//                    tvDl.setText(Common.BCC_MODE_DL);
                     workMode = Common.MEASURE_MODE_BCC;
                 }
             }
