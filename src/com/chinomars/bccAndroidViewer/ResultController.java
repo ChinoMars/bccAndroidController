@@ -634,7 +634,7 @@ public class ResultController extends Activity {
         str = String.format("%.2f", datatmp);
         edtLoss.setText(str);
 
-        datatmp = (double) mDl / Common.SCALE / 10;
+        datatmp = (double) mDl / Common.SCALE / 100;
         str = String.format("%.5f", datatmp);
         edtDL.setText(str);
 
