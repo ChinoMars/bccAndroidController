@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import android.app.Dialog;
 import android.graphics.Color;
 import android.widget.*;
 
@@ -41,7 +42,7 @@ public class BccController extends Activity {
     BluetoothAdapter btAdapt;
     public static BluetoothSocket btSocket;
 
-    Button btnScan, btnConnect, btnAbout;
+    Button btnScan, btnConnect, btnAbout, btnLocalMAC;
     RadioGroup rdiogModeSet;
 
     int measureMode = Common.MEASURE_MODE_UNKNOW;
@@ -58,8 +59,11 @@ public class BccController extends Activity {
         btnConnect = (Button) this.findViewById(R.id.btn_connect);
         btnConnect.setOnClickListener(new ClickEvent());
 
-        btnAbout = (Button)this.findViewById(R.id.btn_about);
+        btnAbout = (Button) this.findViewById(R.id.btn_about);
         btnAbout.setOnClickListener(new ClickEvent());
+
+        btnLocalMAC = (Button) this.findViewById(R.id.btn_localMAC);
+        btnLocalMAC.setOnClickListener(new ClickEvent());
 
         // Radio Button 设置
         rdiogModeSet = (RadioGroup) this.findViewById(R.id.rdiog_modeSet);
@@ -274,13 +278,31 @@ public class BccController extends Activity {
                     }
                 }
 
-
             } else if(v == btnAbout) {
                 ShowAbout();
+            } else if (v == btnLocalMAC) {
+                mShowLocalMAC();
+
             }
         }
 
     }
+
+    public void mShowLocalMAC() {
+        if (btAdapt == null) return;
+        String macAddr = btAdapt.getAddress();
+        new AlertDialog.Builder(this)
+                .setTitle("Local MAC Address")
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .setMessage(macAddr)
+                .setPositiveButton("Yes",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+    }
+
 
     // Radio Button Event
     class CheckedChangeEvent implements RadioGroup.OnCheckedChangeListener {
