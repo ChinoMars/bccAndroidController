@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">臂长差测量软件</string>
+    <string name="app_name">光纤长度精密测量软件</string>
     <string name="txt_btn_setMac">设置蓝牙MAC地址</string>
     <string name="txt_setHint">请选择工作模式</string>
     <string name="txt_btn_scan">扫描设备</string>

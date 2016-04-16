@@ -62,11 +62,11 @@
                 android:text="@string/txt_btn_about"
         />
 
-        <Button android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/btn_localMAC"
-                android:text="本机MAC"
-        />
+        <!--<Button android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:id="@+id/btn_localMAC"-->
+                <!--android:text="本机MAC"-->
+        <!--/>-->
     </LinearLayout>
 
     <!--<ListView android:layout_width="fill_parent"-->

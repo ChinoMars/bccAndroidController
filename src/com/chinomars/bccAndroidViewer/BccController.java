@@ -62,8 +62,8 @@ public class BccController extends Activity {
         btnAbout = (Button) this.findViewById(R.id.btn_about);
         btnAbout.setOnClickListener(new ClickEvent());
 
-        btnLocalMAC = (Button) this.findViewById(R.id.btn_localMAC);
-        btnLocalMAC.setOnClickListener(new ClickEvent());
+//        btnLocalMAC = (Button) this.findViewById(R.id.btn_localMAC);
+//        btnLocalMAC.setOnClickListener(new ClickEvent());
 
         // Radio Button 设置
         rdiogModeSet = (RadioGroup) this.findViewById(R.id.rdiog_modeSet);

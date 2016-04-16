@@ -80,6 +80,8 @@ public class ResultController extends Activity {
             mMeasureDate,
             mComment;
 
+    Boolean isLegalDevice = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,6 +144,10 @@ public class ResultController extends Activity {
             addLog("本机蓝牙状态不正常，连接失败");
             finish();
             return;
+        }
+
+        if (btAdapt.getAddress().toString().equals(Common.LOCAL_BT_MAC)) {
+            isLegalDevice = true;
         }
 
         IntentFilter intent = new IntentFilter();
@@ -772,6 +778,11 @@ public class ResultController extends Activity {
                     }).start();
                     break;
                 case Common.MESSAGE_CONNECT_SUCCEED:
+                    if (!isLegalDevice) {
+                        addLog("ILLEGAL DEVICE");
+                        mToastMaker("ILLEGAL DEVICE");
+                        return;
+                    }
                     addLog("连接成功");
 
                     mToastMaker("蓝牙连接成功");
