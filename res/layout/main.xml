@@ -69,15 +69,9 @@
         <!--/>-->
     </LinearLayout>
 
-    <!--<ListView android:layout_width="fill_parent"-->
-              <!--android:id="@+id/lvDevices"-->
-              <!--android:layout_height="fill_parent">-->
-    <!--</ListView>-->
-    <!--<Button-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/bnt_exit"-->
-            <!--android:text="@string/txt_btn_exit"-->
-    <!--/>-->
+    <ListView android:layout_width="fill_parent"
+              android:id="@+id/lvDevices"
+              android:layout_height="fill_parent">
+    </ListView>
 </LinearLayout>
 
