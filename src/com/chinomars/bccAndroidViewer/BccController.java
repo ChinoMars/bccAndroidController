@@ -36,7 +36,7 @@ import android.view.View;
 public class BccController extends Activity {
 //    public static String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
-//    ListView lvBTDevices;
+    ListView lvBTDevices;
     ArrayAdapter<String> adtDevices;
     List<String> lstDevices = new ArrayList<String>();
     BluetoothAdapter btAdapt;
@@ -70,11 +70,11 @@ public class BccController extends Activity {
         rdiogModeSet.setOnCheckedChangeListener(new CheckedChangeEvent());
 
 
-//        lvBTDevices = (ListView) this.findViewById(R.id.lvDevices);
+        lvBTDevices = (ListView) this.findViewById(R.id.lvDevices);
         adtDevices = new ArrayAdapter<>(BccController.this,
                 android.R.layout.simple_list_item_1, lstDevices);
-//        lvBTDevices.setAdapter(adtDevices);
-//        lvBTDevices.setOnItemClickListener(new ItemClickEvent());
+        lvBTDevices.setAdapter(adtDevices);
+        lvBTDevices.setOnItemClickListener(new ItemClickEvent());
 
         btAdapt = BluetoothAdapter.getDefaultAdapter();
 
@@ -146,42 +146,48 @@ public class BccController extends Activity {
     }
 
 
-//    class ItemClickEvent implements AdapterView.OnItemClickListener
-//    {
-//        @Override
-//        public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-//                                long arg3)
-//        {
-//            // 如果蓝牙还没开启
-//            if (btAdapt.getState() != BluetoothAdapter.STATE_ON)
-//            {
-//                Toast.makeText(BccController.this, "请开启蓝牙", 1000).show();
-//                return;
-//            }
-//
-//            if (btAdapt.isDiscovering())
-//                btAdapt.cancelDiscovery();
-//            String str = lstDevices.get(arg2);
-//            if (str == null | str.equals(""))
-//                return;
-//            String[] values = str.split("\\|");
-//            String address = values[1];
-//            Log.e(Common.TAG, values[1]);
-//            try {
-//                Intent intMain = new Intent(getApplicationContext(), ResultController.class);
-//                Bundle bd = new Bundle();
-//                bd.putString("NAME", values[0]);
-//                bd.putString("MAC", values[1]);
-//                intMain.putExtras(bd);
-//                startActivity(intMain);
-//            } catch (Exception e) {
-//                Log.d(Common.TAG, "Error connected to: " + address);
-//                e.printStackTrace();
-//            }
-//
-//        }
-//
-//    }
+    class ItemClickEvent implements AdapterView.OnItemClickListener
+    {
+        @Override
+        public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+                                long arg3)
+        {
+            // 如果蓝牙还没开启
+            if (btAdapt.getState() != BluetoothAdapter.STATE_ON)
+            {
+                Toast.makeText(BccController.this, "请开启蓝牙", 1000).show();
+                return;
+            }
+
+            if (measureMode == Common.MEASURE_MODE_UNKNOW) {
+                Toast.makeText(BccController.this, "请选择工作模式", 1000).show();
+                return;
+            }
+
+            if (btAdapt.isDiscovering())
+                btAdapt.cancelDiscovery();
+            String str = lstDevices.get(arg2);
+            if (str == null | str.equals(""))
+                return;
+            String[] values = str.split("\\|");
+            String address = values[1];
+            Log.e(Common.TAG, values[1]);
+            try {
+                Intent intMain = new Intent(getApplicationContext(), ResultController.class);
+                Bundle bd = new Bundle();
+                bd.putString("NAME", values[0]);
+                bd.putString("MAC", values[1]);
+                bd.putInt("MODE", measureMode);
+                intMain.putExtras(bd);
+                startActivity(intMain);
+            } catch (Exception e) {
+                Log.d(Common.TAG, "Error connected to: " + address);
+                e.printStackTrace();
+            }
+
+        }
+
+    }
 
     // 菜单事件
     @Override
