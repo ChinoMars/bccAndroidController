@@ -48,12 +48,13 @@
                 android:checked="false"/>
     </RadioGroup>
 
-        <!--<Button-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/btn_connect"-->
-                <!--android:text="@string/txt_btn_connect_BT"-->
-        <!--/>-->
+        <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_connect"
+                android:text="@string/txt_btn_connect_BT"
+                android:visibility="gone"
+        />
 
         <Button
                 android:layout_width="match_parent"
