@@ -265,6 +265,10 @@ public class BccController extends Activity {
                     }
 
                     if (values[1].equals(Common.BIND_BT_MAC)) {
+                        if (btAdapt.isDiscovering()) {
+                            btAdapt.cancelDiscovery();
+                        }
+
                         Log.e(Common.TAG, values[1]);
                         try {
                             Intent intResult = new Intent(getApplicationContext(), ResultController.class);
