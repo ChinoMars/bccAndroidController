@@ -637,11 +637,11 @@ public class ResultController extends Activity {
         edtCnt.setText(str);
 
         datatmp = (double) mLoss / Common.SCALE / 10;
-        str = String.format("%.2f", datatmp);
+        str = String.format("%.6f", datatmp); // 暂时设置为显示6位，原本为2位
         edtLoss.setText(str);
 
         datatmp = (double) mDl / Common.SCALE / 100;
-        str = String.format("%.5f", datatmp);
+        str = String.format("%.6f", datatmp);
         edtDL.setText(str);
 
         if (mN >= Common.MIN_N && mN <= Common.MAX_N){
