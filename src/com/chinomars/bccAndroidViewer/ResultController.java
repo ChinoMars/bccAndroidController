@@ -636,7 +636,7 @@ public class ResultController extends Activity {
         String str = String.format("%.1f",datatmp);
         edtCnt.setText(str);
 
-        datatmp = (double) mLoss / Common.SCALE / 10;
+        datatmp = (double) mLoss / 100; // changed from "Common.Scale / 10" to "100";
         str = String.format("%.6f", datatmp); // 暂时设置为显示6位，原本为2位
         edtLoss.setText(str);
 
@@ -961,8 +961,11 @@ public class ResultController extends Activity {
                             if (checkSum == resultSection[revResLen-1]) { // data correct
                                 int dataTmp = (int) (((resultSection[3]&0xff) << 24) | ((resultSection[4]&0xff) << 16) | ((resultSection[5]&0xff) << 8) | (resultSection[6] & 0xff));
                                 mDl = dataTmp;
-                                dataTmp = (int) (((resultSection[7]&0xff) << 24) | ((resultSection[8]&0xff) << 16) | ((resultSection[9]&0xff) << 8) | (resultSection[10] & 0xff));
-                                mLoss = dataTmp;
+                                dataTmp = (int) (((Common.MinusFlagZero&0xff) << 24) | ((resultSection[8]&0xff) << 16) | ((resultSection[9]&0xff) << 8) | (resultSection[10] & 0xff));
+                                if (resultSection[7] != Common.MinusFlagZero) {
+                                    mLoss = -dataTmp;
+                                } else mLoss = dataTmp; //
+
                                 dataTmp = (int) (((resultSection[11]&0xff) << 24) | ((resultSection[12]&0xff) << 16) | ((resultSection[13]&0xff) << 8) | (resultSection[14] & 0xff));
                                 mCnt = dataTmp;
                                 nRecved += revResLen;
