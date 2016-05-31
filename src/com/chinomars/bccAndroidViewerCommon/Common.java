@@ -41,6 +41,7 @@ public class Common {
 
     public static final int TIME_OUT = 12; // time out of 12s will alert
 
+	public static final int MinusFlagZero = 0; // for judging negative Loss
 
     // Measure mode
     public static final Integer MEASURE_MODE_UNKNOW = 0;
