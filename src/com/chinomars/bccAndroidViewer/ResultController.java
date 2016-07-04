@@ -45,6 +45,7 @@ public class ResultController extends Activity {
 
     LineChart mCurveDrawer;
     ScrollView svLogger;
+    ProgressBar pgInfor;
     TextView tvTitle, tvLog, tvDl;
     TextView tvOperartor, tvMeasureDate;
     TextView tvProgresser;
@@ -95,6 +96,8 @@ public class ResultController extends Activity {
         svLogger.setOnLongClickListener(new LongClickEvent());
         tvLog = (TextView) this.findViewById(R.id.tv_Log);
         tvLog.setOnClickListener(new ClickEvent());
+        pgInfor = (ProgressBar) this.findViewById(R.id.progressBar2);
+
 
         edtCnt = (EditText) this.findViewById(R.id.edt_cnt);
         edtDL = (EditText) this.findViewById(R.id.edt_dl);
@@ -806,12 +809,13 @@ public class ResultController extends Activity {
                                     int streamLenAval = mmInStream.available();
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
                                         if (nNeed > 0) {
-                                            mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
+                                            mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, outTimmer, -1).sendToTarget();
                                             if (outTimmer > Common.TIME_OUT) {
-//                                                mAlert("Time Out!");
-                                                mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, 0, -1).sendToTarget();
+                                                mHandler.obtainMessage(Common.MESSAGE_TIMEOUT, 0, -1).sendToTarget();
                                                 // TODO time out to flush inputstream and ask for resending
-
+                                                byte[] flushByte = new byte[streamLenAval];
+                                                nRecv = mmInStream.read(flushByte); // flush inputstream
+                                                ifResetTimmer = true;
                                             }
                                         }
                                         Thread.sleep(1000);
@@ -885,6 +889,8 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
+                    pgInfor.setVisibility(View.INVISIBLE);
+
                     byte[] bBuf = (byte[]) msg.obj; // 848 bytes data
 
                     Log.d(Common.TAG, "Recvd bytes: " + String.valueOf(msg.arg1));
@@ -914,15 +920,30 @@ public class ResultController extends Activity {
                         Toast.LENGTH_SHORT).show();
                     break;
                 case Common.MESSAGE_UPDATE_PROGRESS:
+                    Log.e(Common.TAG, "recent progress is:" + String.valueOf(msg.arg1));
                     mSetProgressText(msg.arg1);
+                    break;
+                case Common.MESSAGE_TIMEOUT:
+                    mResetData();
+                    // pgInfor.setVisibility(View.INVISIBLE);
+                    // mCurveDrawer.setVisibility(View.VISIBLE);
                     break;
             }
         }
 
     };
 
+
+    public void mResetData() {
+        pgInfor.setVisibility(View.INVISIBLE);
+        mCurveDrawer.setVisibility(View.VISIBLE);
+        nNeed = 0;
+        nRecved = 0;
+    }
+
     public void mSetProgressText(int dataAvail) {
         int prog = dataAvail / Common.RESULT_AND_DATA_LEN * 100;
+        Log.e(Common.TAG, "recent prog is = " + String.valueOf(prog));
         tvProgresser.setText(String.valueOf(prog) + "%");
     }
 
@@ -1109,6 +1130,9 @@ public class ResultController extends Activity {
                     send(sendCmd);
                     ifResetTimmer = true;
                 }
+
+                mCurveDrawer.setVisibility(View.INVISIBLE);
+                pgInfor.setVisibility(View.VISIBLE);
 
             } else if (v == btnParamSetter) {
                 showParamSetDialog();
