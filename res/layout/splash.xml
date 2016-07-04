@@ -17,12 +17,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dip"
                     android:typeface="serif"
-                    android:shadowRadius="1"
-                    android:shadowColor="#FFFFFF"
                     android:textColor="#0000FF"
                     android:textSize="30sp"
                     android:gravity="bottom"
                     android:text="@string/txt_splashContent"
-            />
+        />
+        
 
 </LinearLayout>

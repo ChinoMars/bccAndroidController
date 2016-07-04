@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:text="@string/txt_btn_scan"
             android:id="@+id/btn_scan"
+            style="@style/btnStyle"
     />
 
     <LinearLayout
@@ -29,6 +30,7 @@
             android:text="@string/txt_setHint"
             android:padding="20dip"
             android:gravity="center_horizontal"
+            style="@style/txtStyle"
         />
     <RadioGroup
         android:layout_width="match_parent"
@@ -39,14 +41,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/txt_rdio_bccMode"
                 android:id="@+id/rdio_bccMode"
-                android:checked="false"/>
+                android:checked="false"
+                style="@style/rdioStyle"/>
 
         <RadioButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/txt_rdio_gxcMode"
                 android:id="@+id/rdio_gxcMode"
-                android:checked="false"/>
+                android:checked="false"
+                style="@style/rdioStyle"/>
     </RadioGroup>
 
         <Button
@@ -54,6 +58,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/btn_connect"
                 android:text="@string/txt_btn_connect_BT"
+                style="@style/btnStyle"
         />
 
         <Button
@@ -61,6 +66,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/btn_about"
                 android:text="@string/txt_btn_about"
+                style="@style/btnStyle"
         />
 
         <!--<Button android:layout_width="match_parent"-->

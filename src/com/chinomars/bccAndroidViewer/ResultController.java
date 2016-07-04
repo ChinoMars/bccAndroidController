@@ -48,7 +48,6 @@ public class ResultController extends Activity {
     ProgressBar pgInfor;
     TextView tvTitle, tvLog, tvDl;
     TextView tvOperartor, tvMeasureDate;
-    TextView tvProgresser;
     EditText edtCnt, edtLoss, edtDL, edtN;
     SeekBar sekbN;
     RadioGroup rdiogRangeSetter;
@@ -126,7 +125,6 @@ public class ResultController extends Activity {
         tvDl = (TextView) this.findViewById(R.id.txt_dl);
         tvOperartor = (TextView) this.findViewById(R.id.txt_operator);
         tvMeasureDate = (TextView) this.findViewById(R.id.txt_date);
-        tvProgresser = (TextView) this.findViewById(R.id.tv_progresser);
 
         Bundle bund = this.getIntent().getExtras();
         strName = bund.getString("NAME");
@@ -921,12 +919,9 @@ public class ResultController extends Activity {
                     break;
                 case Common.MESSAGE_UPDATE_PROGRESS:
                     Log.e(Common.TAG, "recent progress is:" + String.valueOf(msg.arg1));
-                    mSetProgressText(msg.arg1);
                     break;
                 case Common.MESSAGE_TIMEOUT:
                     mResetData();
-                    // pgInfor.setVisibility(View.INVISIBLE);
-                    // mCurveDrawer.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -935,17 +930,12 @@ public class ResultController extends Activity {
 
 
     public void mResetData() {
-        pgInfor.setVisibility(View.INVISIBLE);
-        mCurveDrawer.setVisibility(View.VISIBLE);
+        // TODO reset progress bar
+        
         nNeed = 0;
         nRecved = 0;
     }
 
-    public void mSetProgressText(int dataAvail) {
-        int prog = dataAvail / Common.RESULT_AND_DATA_LEN * 100;
-        Log.e(Common.TAG, "recent prog is = " + String.valueOf(prog));
-        tvProgresser.setText(String.valueOf(prog) + "%");
-    }
 
     private void parseRevData(byte[] revByteBuf, int len) {
         if (nNeed == 0 || nRecved >= nNeed) {
@@ -1035,7 +1025,6 @@ public class ResultController extends Activity {
                                     nRecved += revDataLen;
                                     if (mCurveData.size() == Common.MAX_CURVE_LEN || dataSection[2] == 8) { // not rub
                                         mDrawCurve();
-                                        mSetProgressText(0);
                                     }
                                     idx = idx + revDataLen - 3; // -1 for ++idx out of switch
 
@@ -1247,12 +1236,16 @@ public class ResultController extends Activity {
             if (checkId == R.id.rdio_long) {
                 setMeasureRange(Common.MEASURE_RANGE_LONG);
             }
-            else if(checkId == R.id.rdio_mid) {
-                setMeasureRange(Common.MEASURE_RANGE_MID);
+            else if(checkId == R.id.rdio_mid1) {
+                setMeasureRange(Common.MEASURE_RANGE_MID1);
+            }
+            else if(checkId == R.id.rdio_mid2) {
+                setMeasureRange(Common.MEASURE_RANGE_MID2);
             }
             else if(checkId == R.id.rdio_short) {
                 setMeasureRange(Common.MEASURE_RANGE_SHORT);
             }
+
         }
 
     }

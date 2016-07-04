@@ -24,12 +24,19 @@
     <!--<string name="txt_n">n:</string>-->
     <string name="txt_n">折射率：</string>
     <!--<string name="txt_rdio_long">Long (25m-300m)</string>-->
-    <string name="txt_rdio_long">长 (25m-300m)</string>
+    <!-- <string name="txt_rdio_long">长 (25m-300m)</string> -->
     <!--<string name="txt_rdio_mid">Mid (2.5m-25m)</string>-->
-    <string name="txt_rdio_mid">中 (2.5m-25m)</string>
+    <!-- <string name="txt_rdio_mid">中 (2.5m-25m)</string> -->
     <!--<string name="txt_rdio_short">Short (10cm-2.5m)</string>-->
     <!--<string name="txt_rdio_short">Short (10cm-2.5m)</string>-->
-    <string name="txt_rdio_short">短 (10cm-2.5m)</string>
+    <!-- <string name="txt_rdio_short">短 (10cm-2.5m)</string> -->
+
+    <string name="txt_rdio_long">Long (&#062;50m)</string>
+    <string name="txt_rdio_mid1">Mid1 (6~50m)</string>
+    <string name="txt_rdio_mid2">Mid2 (0.8~6m</string>
+    <string name="txt_rdio_short">Short (&#060;0.8m)</string>
+
+
     <string name="txt_rdio_bccMode">干涉型臂长差测量模式</string>
     <string name="txt_rdio_gxcMode">光纤链路长测量模式</string>
     <string name="txt_btn_save">保存数据</string>

@@ -41,7 +41,7 @@ public class Common {
     public static final int RECEIVE_DATA_SECTION_LEN = 104; // data section length
     public static final int RECEIVE_DATA_RESULT_LEN = 16; // result section length
 
-    public static final int TIME_OUT = 12; // time out of 12s will alert
+    public static final int TIME_OUT = 15; // time out of 12s will alert
 
 	public static final int MinusFlagZero = 0; // for judging negative Loss
 
@@ -53,8 +53,9 @@ public class Common {
     public static final Integer MESURE_MODE_CHECK_LENGTH_TO_ZERO = 4; //长度校零
     public static final Integer MEASURE_RANGE_UNKNOW = 0;
     public static final Integer MEASURE_RANGE_LONG = 1;
-    public static final Integer MEASURE_RANGE_MID = 2;
-    public static final Integer MEASURE_RANGE_SHORT = 3;
+    public static final Integer MEASURE_RANGE_MID1 = 2;
+    public static final Integer MEASURE_RANGE_MID2 = 3;
+    public static final Integer MEASURE_RANGE_SHORT = 4;
 
     // Erro Code
     public static final String TOAST = "toast";
@@ -64,8 +65,8 @@ public class Common {
     public static final String APP_NAME = "臂长差测量软件";
     public static final String ABOUT_CONTENT = "请选择软件工作模式后再连接蓝牙:\n1.干涉型臂长差测量\n2.光线链路长度测量";
     public static final String BTN_YES = "确定";
-    public static final String BCC_MODE_TITLE = "干涉型臂长差测量软件";
-    public static final String GXC_MODE_TITLE = "光纤链路长度测量软件";
+    public static final String BCC_MODE_TITLE = "干涉型臂长差测量仪";
+    public static final String GXC_MODE_TITLE = "光纤链路长度测量仪";
     public static final String BCC_MODE_DL = "臂长差：";
     public static final String GXC_MODE_L = "长度：";
     public static final String OPERATOR = "操作人：";
