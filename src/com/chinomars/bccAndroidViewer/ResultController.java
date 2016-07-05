@@ -960,6 +960,7 @@ public class ResultController extends Activity {
         int idx = 0;
         Boolean isDataHead1 = false;
         Boolean isDataHead = false;
+        int dropDataCnt = 0;
         while(idx < len) {
             switch (revByteBuf[idx]) {
                 case (byte) 0xA5:
@@ -1025,7 +1026,12 @@ public class ResultController extends Activity {
 
                                     for (int i = 3; i < revDataLen-2; i += 2) {
                                         int dataTmp =  (int) ((dataSection[i] << 8) | (dataSection[i+1] & 0xff)); // i + 1 take rask to overflow
-                                        mCurveData.add(dataTmp);
+                                        if (dropDataCnt < Common.DROP_HEAD_DATA_LEN) { // drop the first error data
+                                            dropDataCnt++;
+                                            continue;
+                                        } else {
+                                            mCurveData.add(dataTmp);                                            
+                                        }
 
                                         // test
                                         addLog(String.valueOf(dataTmp));
