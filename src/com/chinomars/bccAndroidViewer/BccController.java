@@ -200,7 +200,7 @@ public class BccController extends Activity {
                 .setMessage("请选择软件工作模式后再开始工作:\n" +
                         "1.干涉型臂长差测量模式\n" +
                         "2.光线链路长度测量模式")
-                .setPositiveButton(Common.BTN_YES,
+                .setPositiveButton("确定",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {

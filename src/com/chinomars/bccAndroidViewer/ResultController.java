@@ -87,11 +87,15 @@ public class ResultController extends Activity {
         setContentView(R.layout.result);
 
         mCurveDrawer = (LineChart) this.findViewById(R.id.curve_drawer);
-        mCurveDrawer.setOnLongClickListener(new LongClickEvent());
+        
         svLogger = (ScrollView) this.findViewById(R.id.sv_logger);
-        svLogger.setOnLongClickListener(new LongClickEvent());
         tvLog = (TextView) this.findViewById(R.id.tv_Log);
-        tvLog.setOnClickListener(new ClickEvent());
+        if (Common.IS_DEBUG) {
+            mCurveDrawer.setOnLongClickListener(new LongClickEvent());
+            svLogger.setOnLongClickListener(new LongClickEvent());
+            tvLog.setOnClickListener(new ClickEvent());
+        }
+
         pgInfor = (ProgressBar) this.findViewById(R.id.progressBar2);
 
 
@@ -804,7 +808,7 @@ public class ResultController extends Activity {
                                     int streamLenAval = mmInStream.available();
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
                                         if (nNeed > 0) {
-                                            mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, outTimmer, -1).sendToTarget();
+                                            mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
                                             if (outTimmer > Common.TIME_OUT) {
                                                 mHandler.obtainMessage(Common.MESSAGE_TIMEOUT, 0, -1).sendToTarget();
                                                 // TODO time out to flush inputstream and ask for resending
@@ -889,7 +893,7 @@ public class ResultController extends Activity {
                     Log.d(Common.TAG, "Recvd bytes: " + String.valueOf(msg.arg1));
 
                     parseRevData(bBuf, msg.arg1); // ought to contain 848 bytes
-                    mResetDataFlag();
+                    mResetDataFlag(); // receive sucessfully and reset data in need and received data length
 //                    for (int i = 0; i < msg.arg1; ++i) {
 //                        String str = Integer.toHexString(0xff & bBuf[i]);
 //                        addLog(str);
@@ -918,6 +922,7 @@ public class ResultController extends Activity {
                     updateProgress(progress);
                     break;
                 case Common.MESSAGE_TIMEOUT:
+                    mToastMaker("数据传输超时，请重试。");
                     mResetDataFlag();
                     break;
             }
@@ -926,8 +931,8 @@ public class ResultController extends Activity {
     };
 
     public void updateProgress(int progress) {
-//        int prog = progress * 100 / Common.RESULT_AND_DATA_LEN ;
-        int prog = progress * 100 / Common.TIME_OUT;
+        int prog = progress * 100 / Common.RESULT_AND_DATA_LEN ;
+        // int prog = progress * 100 / Common.TIME_OUT;
         Log.e(Common.TAG, "### updateProgress " + String.valueOf(prog));
         pgInfor.setProgress(prog);
     }

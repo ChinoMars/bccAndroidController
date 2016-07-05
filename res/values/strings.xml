@@ -34,7 +34,7 @@
 
     <string name="txt_rdio_long">Long (&#062;50m)</string>
     <string name="txt_rdio_mid1">Mid1 (5~50m)</string>
-    <string name="txt_rdio_mid2">Mid2 (0.5~6m)</string>
+    <string name="txt_rdio_mid2">Mid2 (0.5~5m)</string>
     <string name="txt_rdio_short">Short (&#060;0.5m)</string>
 
 

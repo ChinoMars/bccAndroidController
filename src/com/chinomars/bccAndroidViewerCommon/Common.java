@@ -45,6 +45,10 @@ public class Common {
 
 	public static final int MinusFlagZero = 0; // for judging negative Loss
 
+    // Control Setting
+    public static final Boolean IS_DEBUG = false; // set to true to show debug log
+    public static final int DROP_HEAD_DATA_LEN = 1; // drop the first length data of mCurveDrawer
+
     // Measure mode
     public static final Integer MEASURE_MODE_UNKNOW = 0;
     public static final Integer MEASURE_MODE_BCC = 1;
