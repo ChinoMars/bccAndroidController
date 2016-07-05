@@ -10,27 +10,16 @@
     <string name="txt_btn_paramset">参数设置</string>
     <string name="txt_about">本软件用于</string>
     <string name="txt_result">Result:</string>
-    <!--<string name="txt_cnt">Cnt:</string>-->
     <string name="txt_cnt">波数：</string>
-    <!--<string name="txt_loss">Loss:</string>-->
     <string name="txt_loss">差损：</string>
     <string name="txt_dB">dB</string>
     <string name="txt_fst">FSR:</string>
     <string name="txt_mhz">MHz</string>
-    <!--<string name="txt_dl">DL:</string>-->
     <string name="txt_dl">臂长差：</string>
     <string name="txt_l">长度：</string>
     <string name="txt_metre">m</string>
-    <!--<string name="txt_n">n:</string>-->
     <string name="txt_n">折射率：</string>
     <string name="txt_measure_range">测量范围：</string>
-    <!--<string name="txt_rdio_long">Long (25m-300m)</string>-->
-    <!-- <string name="txt_rdio_long">长 (25m-300m)</string> -->
-    <!--<string name="txt_rdio_mid">Mid (2.5m-25m)</string>-->
-    <!-- <string name="txt_rdio_mid">中 (2.5m-25m)</string> -->
-    <!--<string name="txt_rdio_short">Short (10cm-2.5m)</string>-->
-    <!--<string name="txt_rdio_short">Short (10cm-2.5m)</string>-->
-    <!-- <string name="txt_rdio_short">短 (10cm-2.5m)</string> -->
 
     <string name="txt_rdio_long">Long (&#062;50m)</string>
     <string name="txt_rdio_mid1">Mid1 (5~50m)</string>
@@ -58,8 +47,4 @@
 
     <string name="txt_splashContent">光纤长度精密测量仪器</string>
 
-    <!--<string-array name="arr_spn_bg">-->
-        <!--<item>干涉型臂长差测量软件</item>-->
-        <!--<item>光线链路长度测量软件</item>-->
-    <!--</string-array>-->
 </resources>

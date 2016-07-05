@@ -25,10 +25,15 @@ public class Common {
 
     // Static Setting
     public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
-    public static final String BIND_BT_MAC = "30:14:12:26:11:35"; // test blue tooth
-//    public static final String BIND_BT_MAC = "00:0E:EA:CF:62:55";
-//    public static final String LOCAL_BT_MAC = "86:28:E1:24:46:6E"; // ANDROID PAD
-    public static final String LOCAL_BT_MAC = "22:22:41:C4:81:7C"; // MULTIPLE SYS PAD OLD
+
+    // BIND INFORMATION
+    public static final String BIND_BT_MAC = "30:14:12:26:11:35"; // test single blue tooth
+//    public static final String BIND_BT_MAC = "00:0E:EA:CF:62:55"; // test board
+
+//    public static final String LOCAL_BT_MAC = "86:28:E1:24:46:6E"; // test ANDROID PAD
+//    public static final String LOCAL_BT_MAC = "22:22:41:C4:81:7C"; // MULTIPLE SYS PAD OLD
+    public static final String LOCAL_BT_MAC = "22:22:97:AB:83:0F"; // MULTIPLE SYS PAD NEW
+
     public static final int MIN_N = 14400; // mim n
     public static final int MAX_N = 14700; // max n
     public static final double SCALE = 10000; // based on the MAX_N and MIN_N
