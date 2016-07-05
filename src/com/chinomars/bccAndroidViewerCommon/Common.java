@@ -62,8 +62,8 @@ public class Common {
     public static final String TAG = "BlueToothTool";
 
     // Static String Content
-    public static final String APP_NAME = "臂长差测量软件";
-    public static final String ABOUT_CONTENT = "请选择软件工作模式后再连接蓝牙:\n1.干涉型臂长差测量\n2.光线链路长度测量";
+    public static final String APP_NAME = "光纤长度精密测量仪";
+    public static final String ABOUT_CONTENT = "请选择软件工作模式后再开始工作:\n1.干涉型臂长差测量模式\n2.光线链路长度测量模式";
     public static final String BTN_YES = "确定";
     public static final String BCC_MODE_TITLE = "干涉型臂长差测量仪";
     public static final String GXC_MODE_TITLE = "光纤链路长度测量仪";

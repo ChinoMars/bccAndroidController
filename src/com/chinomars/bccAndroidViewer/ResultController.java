@@ -19,17 +19,14 @@ import android.widget.*;
 
 import com.chinomars.bccAndroidViewerCommon.Common;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.Vector;
-import java.util.zip.CRC32;
 
 import static android.view.View.VISIBLE;
 
@@ -230,7 +227,7 @@ public class ResultController extends Activity {
 //        final EditText etTmp = new EditText(this);
 //        etTmp.setText(null);
 //
-//        new AlertDialog.Builder(this)
+//        new AlertDialog.Builder(this, R.style.altDialgStyle)
 //            .setTitle("当前文件名为:" + mFileName)
 //            .setIcon(android.R.drawable.ic_dialog_info)
 //            .setView(etTmp)
@@ -259,7 +256,7 @@ public class ResultController extends Activity {
             mSetParamSetterInfo(paramLayout);
         }
 
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
             .setTitle("请输入本次测量信息")
             .setView(paramLayout)
             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -535,7 +532,7 @@ public class ResultController extends Activity {
 
             fileListLayout.addView(lvReadFiles);
 
-            final AlertDialog dialog = new AlertDialog.Builder(this)
+            final AlertDialog dialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
                 .setTitle("请选择文件")
                 .setView(fileListLayout)
                 .setNegativeButton("取消", new DialogInterface.OnClickListener(){
@@ -887,14 +884,12 @@ public class ResultController extends Activity {
 
                     break;
                 case Common.MESSAGE_RECV:
-                    pgInfor.setVisibility(View.INVISIBLE);
-
                     byte[] bBuf = (byte[]) msg.obj; // 848 bytes data
 
                     Log.d(Common.TAG, "Recvd bytes: " + String.valueOf(msg.arg1));
 
                     parseRevData(bBuf, msg.arg1); // ought to contain 848 bytes
-
+                    mResetDataFlag();
 //                    for (int i = 0; i < msg.arg1; ++i) {
 //                        String str = Integer.toHexString(0xff & bBuf[i]);
 //                        addLog(str);
@@ -918,20 +913,28 @@ public class ResultController extends Activity {
                         Toast.LENGTH_SHORT).show();
                     break;
                 case Common.MESSAGE_UPDATE_PROGRESS:
-                    Log.e(Common.TAG, "recent progress is:" + String.valueOf(msg.arg1));
+                    int progress = msg.arg1;
+                    Log.e(Common.TAG, "### MESSAGE_UPDATE_PROGRESS: recent progress is:" + String.valueOf(progress));
+                    updateProgress(progress);
                     break;
                 case Common.MESSAGE_TIMEOUT:
-                    mResetData();
+                    mResetDataFlag();
                     break;
             }
         }
 
     };
 
+    public void updateProgress(int progress) {
+//        int prog = progress * 100 / Common.RESULT_AND_DATA_LEN ;
+        int prog = progress * 100 / Common.TIME_OUT;
+        Log.e(Common.TAG, "### updateProgress " + String.valueOf(prog));
+        pgInfor.setProgress(prog);
+    }
 
-    public void mResetData() {
-        // TODO reset progress bar
-        
+
+    public void mResetDataFlag() {
+        updateProgress(0);
         nNeed = 0;
         nRecved = 0;
     }
@@ -1120,9 +1123,6 @@ public class ResultController extends Activity {
                     ifResetTimmer = true;
                 }
 
-                mCurveDrawer.setVisibility(View.INVISIBLE);
-                pgInfor.setVisibility(View.VISIBLE);
-
             } else if (v == btnParamSetter) {
                 showParamSetDialog();
 
@@ -1289,7 +1289,7 @@ public class ResultController extends Activity {
     }
 
     public void mAlert(String alertContent){
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
             .setTitle(alertContent)
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setPositiveButton("确定", new DialogInterface.OnClickListener(){

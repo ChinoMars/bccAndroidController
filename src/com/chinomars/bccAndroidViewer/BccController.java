@@ -195,9 +195,11 @@ public class BccController extends Activity {
     }
 
     public void ShowAbout() {
-        new AlertDialog.Builder(this)
-                .setTitle(Common.APP_NAME)
-                .setMessage(Common.ABOUT_CONTENT)
+        new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
+                .setTitle("光纤长度精密测量仪")
+                .setMessage("请选择软件工作模式后再开始工作:\n" +
+                        "1.干涉型臂长差测量模式\n" +
+                        "2.光线链路长度测量模式")
                 .setPositiveButton(Common.BTN_YES,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,

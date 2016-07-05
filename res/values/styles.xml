@@ -29,4 +29,10 @@
 		<item name="android:textSize">20dp</item>
 		<item name="android:textColor">#103ffb</item>
 	</style>
+
+	<style name="altDialgStyle" parent="@android:style/Theme.Light">
+		<item name="android:background">#ffffff</item>
+		<item name="android:textSize">20dp</item>
+		<item name="android:textColor">#103FFB</item>
+	</style>
 </resources>
