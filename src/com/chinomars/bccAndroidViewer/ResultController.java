@@ -165,7 +165,7 @@ public class ResultController extends Activity {
     protected void onDestroy()
     {
         this.unregisterReceiver(connectDevices);
-        Log.e(Common.TAG, "Free result");
+        Log.d(Common.TAG, "Free result");
         super.onDestroy();
     }
 
@@ -371,7 +371,7 @@ public class ResultController extends Activity {
     private void mSaveData(){
         // FILE METHOD save to SD card, absolute PATH: SDCARD/BccDATA/
         try{
-            Log.e(Common.TAG, "error when saveing data" + mFileName);
+            Log.d(Common.TAG, "error when saveing data" + mFileName);
             File sdCardDir = Environment.getExternalStorageDirectory();
             File saveDir = new File(sdCardDir.getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
             if (!saveDir.exists()) {
@@ -808,7 +808,7 @@ public class ResultController extends Activity {
                                     // Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(streamLenAval) + "bytes");
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
                                         if (nNeed > 0) {
-                                            Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(streamLenAval) + "bytes");
+                                            Log.d(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(streamLenAval) + "bytes");
                                             mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, outTimmer, -1).sendToTarget();
                                             if (outTimmer > Common.TIME_OUT) {
                                                 mHandler.obtainMessage(Common.MESSAGE_TIMEOUT, 0, -1).sendToTarget();
@@ -824,7 +824,7 @@ public class ResultController extends Activity {
                                     }
 
                                     if (streamLenAval > Common.RESULT_AND_DATA_LEN) {
-                                        Log.e(Common.TAG, "too much data");
+                                        Log.d(Common.TAG, "too much data");
                                         // TODO send resend commend
                                         byte[] flushByte = new byte[streamLenAval];
                                         nRecv = mmInStream.read(flushByte); // flush inputstream
@@ -853,7 +853,7 @@ public class ResultController extends Activity {
                                 }
                             }
 
-                            Log.e(Common.TAG, "Exit while");
+                            Log.d(Common.TAG, "Exit while");
                         }
                     }).start();
                     break;
@@ -1136,6 +1136,7 @@ public class ResultController extends Activity {
                     edtDL.setText("0.00000");
                     mCurveDrawer.clear();
                     byte[] sendCmd = mGenMeasureCmd();
+                    Log.d(Common.TAG, "workmode: " + String.valueOf(sendCmd[6]));
 
                     // TODO add command data
                     send(sendCmd);
@@ -1264,6 +1265,8 @@ public class ResultController extends Activity {
             else if(checkId == R.id.rdio_short) {
                 setMeasureRange(Common.MEASURE_RANGE_SHORT);
             }
+
+            Log.d(Common.TAG, "workMode: " + String.valueOf(rangeMode));
 
         }
 
