@@ -804,11 +804,12 @@ public class ResultController extends Activity {
                                         ifResetTimmer = false;
                                     }
 
-                                    Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(mmInStream.available()) + "bytes");
                                     int streamLenAval = mmInStream.available();
+                                    // Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(streamLenAval) + "bytes");
                                     if (streamLenAval < Common.RESULT_AND_DATA_LEN) {
                                         if (nNeed > 0) {
-                                            mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, streamLenAval, -1).sendToTarget();
+                                            Log.e(Common.TAG, "Start Recv, data rev avaiable: " + String.valueOf(streamLenAval) + "bytes");
+                                            mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, outTimmer, -1).sendToTarget();
                                             if (outTimmer > Common.TIME_OUT) {
                                                 mHandler.obtainMessage(Common.MESSAGE_TIMEOUT, 0, -1).sendToTarget();
                                                 // TODO time out to flush inputstream and ask for resending
@@ -830,15 +831,20 @@ public class ResultController extends Activity {
                                         continue;
                                     }
 
-                                    // TODO proc data in time
+                                    outTimmer = Common.TIME_OUT;
 
                                     nRecv = mmInStream.read(bufRev);
 
                                     byte[] nPacket = new byte[nRecv];
                                     System.arraycopy(bufRev, 0, nPacket, 0, nRecv);
 
-                                    if(nNeed > 0 && nRecved < nNeed)
+                                    if(nNeed > 0 && nRecved < nNeed) {
+
                                         mHandler.obtainMessage(Common.MESSAGE_RECV, nRecv, -1, nPacket).sendToTarget();
+                                        mHandler.obtainMessage(Common.MESSAGE_UPDATE_PROGRESS, outTimmer, -1).sendToTarget(); // fake full prograss
+
+                                    }
+
 
                                 } catch (Exception e) {
                                     Log.e(Common.TAG, "Recv thread:" + e.getMessage());
@@ -894,6 +900,7 @@ public class ResultController extends Activity {
 
                     parseRevData(bBuf, msg.arg1); // ought to contain 848 bytes
                     mResetDataFlag(); // receive sucessfully and reset data in need and received data length
+
 //                    for (int i = 0; i < msg.arg1; ++i) {
 //                        String str = Integer.toHexString(0xff & bBuf[i]);
 //                        addLog(str);
@@ -918,7 +925,7 @@ public class ResultController extends Activity {
                     break;
                 case Common.MESSAGE_UPDATE_PROGRESS:
                     int progress = msg.arg1;
-                    Log.e(Common.TAG, "### MESSAGE_UPDATE_PROGRESS: recent progress is:" + String.valueOf(progress));
+                    // Log.e(Common.TAG, "### MESSAGE_UPDATE_PROGRESS: recent progress is:" + String.valueOf(progress));
                     updateProgress(progress);
                     break;
                 case Common.MESSAGE_TIMEOUT:
@@ -931,15 +938,15 @@ public class ResultController extends Activity {
     };
 
     public void updateProgress(int progress) {
-        int prog = progress * 100 / Common.RESULT_AND_DATA_LEN ;
-        // int prog = progress * 100 / Common.TIME_OUT;
+        // int prog = progress * 100 / Common.RESULT_AND_DATA_LEN;
+        int prog = progress * 100 / Common.TIME_OUT;
         Log.e(Common.TAG, "### updateProgress " + String.valueOf(prog));
         pgInfor.setProgress(prog);
     }
 
 
     public void mResetDataFlag() {
-        updateProgress(0);
+        pgInfor.setProgress(0);
         nNeed = 0;
         nRecved = 0;
     }
@@ -1018,7 +1025,7 @@ public class ResultController extends Activity {
                                     }
 
                                     // push 100 data to mCurveData
-                                    int curveDataLen = mCurveData.size();
+                                    int curveDataLen = mCurveData.size() + Common.DROP_HEAD_DATA_LEN;
                                     if (curveDataLen / 50 != revByteBuf[idx] - 1) {
                                         Log.e(Common.TAG, "unmatch: not the correct section");
                                         break;
@@ -1039,6 +1046,7 @@ public class ResultController extends Activity {
                                     nRecved += revDataLen;
                                     if (mCurveData.size() == Common.MAX_CURVE_LEN || dataSection[2] == 8) { // not rub
                                         mDrawCurve();
+
                                     }
                                     idx = idx + revDataLen - 3; // -1 for ++idx out of switch
 
