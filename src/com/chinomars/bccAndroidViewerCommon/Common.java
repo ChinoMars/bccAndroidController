@@ -27,9 +27,10 @@ public class Common {
     public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
     // BIND INFORMATION
-    public static final String BIND_BT_MAC = "30:14:12:26:11:35"; // test single blue tooth
+//    public static final String BIND_BT_MAC = "30:14:12:26:11:35"; // test single blue tooth
 //    public static final String BIND_BT_MAC = "00:0E:EA:CF:62:55"; // test board
-//    public static final String BIND_BT_MAC = "00:0E:EA:CF:BA:F2"; // new test board
+    // public static final String BIND_BT_MAC = "00:0E:EA: CF:BA:F2"; // new test board
+    public static final String BIND_BT_MAC = "00:0E:EA:CF:BA:F0"; // product board
 
 //    public static final String LOCAL_BT_MAC = "86:28:E1:24:46:6E"; // test ANDROID PAD
 //    public static final String LOCAL_BT_MAC = "22:22:41:C4:81:7C"; // MULTIPLE SYS PAD OLD
@@ -47,7 +48,7 @@ public class Common {
     public static final int RECEIVE_DATA_SECTION_LEN = 104; // data section length
     public static final int RECEIVE_DATA_RESULT_LEN = 16; // result section length
 
-    public static final int TIME_OUT = 15; // time out of 12s will alert
+    public static final int TIME_OUT = 20; // time out of 12s will alert
 
 	public static final int MinusFlagZero = 0; // for judging negative Loss
 
