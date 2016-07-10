@@ -56,6 +56,9 @@ public class Common {
     public static final Boolean IS_DEBUG = false; // set to true to show debug log
     public static final int DROP_HEAD_DATA_LEN = 1; // drop the first length data of mCurveDrawer
 
+    // Specific method of draw curve
+    public static final int FLAT_DATA_THRESH_HOLD = 700; // when diff is less than this config
+
     // Measure mode
     public static final Integer MEASURE_MODE_UNKNOW = 0;
     public static final Integer MEASURE_MODE_BCC = 1;

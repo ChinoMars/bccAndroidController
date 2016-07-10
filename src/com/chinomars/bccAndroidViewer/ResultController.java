@@ -19,6 +19,7 @@ import android.widget.*;
 
 import com.chinomars.bccAndroidViewerCommon.Common;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -696,14 +697,34 @@ public class ResultController extends Activity {
 
                 int maxer = findMaxer();
                 int miner = findMiner();
-                maxer = (maxer == miner) ? 1 : (maxer - miner);
                 int curveDataLen = mCurveData.size();
+                int base = (maxer == miner) ? 1 : (maxer - miner);
+
+                // specific method when data of maxer and miner are too close
+                float avg = (1 - (float) (maxer - miner) / base) / 2; // 0.5
+                Boolean isSpecific = false;
+                float transferScale = 1;
+                if(base < Common.FLAT_DATA_THRESH_HOLD) {
+                    isSpecific = true;
+                    transferScale = base / Common.FLAT_DATA_THRESH_HOLD ;
+                }
+
                 for(int i = 0; i < curveDataLen; ++i){
                     if (mCurveData.get(i) == 0) {
                         Log.d(Common.TAG, "got a ZERO here at " + String.valueOf(i));
                         mAlert("got a ZERO here at " + String.valueOf(i));
                     }
-                    float tmpVal = 1 - (float) (Math.abs(mCurveData.get(i)) - miner) / maxer;
+                    float tmpVal = 1 - (float) (Math.abs(mCurveData.get(i)) - miner) / base;
+
+                    // Speicifc method
+                    if(isSpecific) {
+                        if(tmpVal > avg) {
+                            tmpVal = avg + (tmpVal - avg) * transferScale;
+                        } else {
+                            tmpVal = avg - (avg - tmpVal) * transferScale;
+                        }
+                    }
+
                     yVal.add(new Entry(tmpVal, i));
                     xVal.add("" + (i+1));
                 }
@@ -720,6 +741,15 @@ public class ResultController extends Activity {
                 mCurveDrawer.setBackgroundColor(Color.rgb(201, 201, 201));
                 mCurveDrawer.setGridBackgroundColor(Color.BLACK);
                 mCurveDrawer.setBorderColor(Color.RED);
+
+                YAxis yl = mCurveDrawer.getAxisLeft();
+                yl.setAxisMaxValue(1.1f);
+                yl = mCurveDrawer.getAxisRight();
+                yl.setEnabled(false);
+
+                // TODD set yLable
+//                YAxis yAxis = mCurveDrawer.get
+
                 mCurveDrawer.animateX(3000);
 
             } catch (Exception e) {
