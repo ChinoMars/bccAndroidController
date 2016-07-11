@@ -703,12 +703,12 @@ public class ResultController extends Activity {
                 int base = (maxer == miner) ? 1 : (maxer - miner);
 
                 // specific method when data of maxer and miner are too close
-                float avg = (1 - (float) (maxer - miner) / base) / 2; // 0.5
+                float avg = (1 - (float) (maxer - miner) / base / 2.0f); // 0.5
                 Boolean isSpecific = false;
                 float transferScale = 1;
                 if(base < Common.FLAT_DATA_THRESH_HOLD) {
                     isSpecific = true;
-                    transferScale = base / Common.FLAT_DATA_THRESH_HOLD ;
+                    transferScale = (float)base / (float)Common.FLAT_DATA_THRESH_HOLD ;
                 }
 
                 for(int i = 0; i < curveDataLen; ++i){
