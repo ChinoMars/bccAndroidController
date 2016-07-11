@@ -322,7 +322,7 @@ public class ResultController extends Activity {
                     tvMeasureDate.setText(Common.MEASURE_TIME + mMeasureDate);
 
                     if (mFileName == null) {
-                        mFileName = mProdType;
+                        mFileName = mProdType + mProdId;
                     }
 
 
@@ -374,7 +374,8 @@ public class ResultController extends Activity {
         try{
             Log.d(Common.TAG, "error when saveing data" + mFileName);
             File sdCardDir = Environment.getExternalStorageDirectory();
-            File saveDir = new File(sdCardDir.getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
+//            File saveDir = new File(sdCardDir.getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
+            File saveDir = new File(sdCardDir.getAbsolutePath() + FILE_SAVE_PATH + mProdType);
             if (!saveDir.exists()) {
                 saveDir.mkdirs();
             }
@@ -514,7 +515,8 @@ public class ResultController extends Activity {
             return false;
         }
         try{
-            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
+//            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH + mProdType + mProdId);
+            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_SAVE_PATH + mProdType);
             if (!dir.exists()){
                 mToastMaker("尚未保存任何文件");
                 return false;
@@ -1183,7 +1185,8 @@ public class ResultController extends Activity {
                 }
 
                 if (mFileName != mProdType) {
-                    mFileName = mProdType;
+//                    mFileName = mProdType;
+                    mFileName = mProdType + mProdId;
                 }
                 mSaveData();
             } else if (v == btnReadData) {
