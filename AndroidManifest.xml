@@ -37,7 +37,6 @@
         <activity
                 android:name="com.chinomars.bccAndroidViewer.ResultController"
                 android:label="@string/app_name"
-                android:screenOrientation="landscape"
                 android:theme="@style/appTheme"
         >
             <intent-filter>
