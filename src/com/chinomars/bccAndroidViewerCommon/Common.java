@@ -37,7 +37,7 @@ public class Common {
     public static final String LOCAL_BT_MAC = "22:22:97:AB:83:0F"; // MULTIPLE SYS PAD NEW
 
     public static final int MIN_N = 14400; // mim n
-    public static final int MAX_N = 14700; // max n
+    public static final int MAX_N = 15000; // max n
     public static final double SCALE = 10000; // based on the MAX_N and MIN_N
     public static final int RESULT_AND_DATA_LEN = 848; // 总数据长
     public static final int MAX_CURVE_LEN = 400;
