@@ -1175,6 +1175,9 @@ public class ResultController extends Activity {
                     ifResetTimmer = true;
                 }
 
+                // clear focus when click measure button
+                edtN.clearFocus();
+
             } else if (v == btnParamSetter) {
                 showParamSetDialog();
 
