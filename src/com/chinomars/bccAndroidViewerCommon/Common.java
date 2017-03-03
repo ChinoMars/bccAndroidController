@@ -48,6 +48,10 @@ public class Common {
     public static final int RECEIVE_DATA_SECTION_LEN = 104; // data section length
     public static final int RECEIVE_DATA_RESULT_LEN = 16; // result section length
 
+    // For measuring N setting
+    public static final int DEFAULT_N = 14500; // setting default N to send
+    public static final int DEFAULT_L = 5012000; // setting default L to calc real L
+
     public static final int TIME_OUT = 20; // time out of 12s will alert
 
 	public static final int MinusFlagZero = 0; // for judging negative Loss

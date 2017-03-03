@@ -56,6 +56,7 @@ public class ResultController extends Activity {
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
     int mCnt = 0, mLoss = 0, mDl = 0, mN = Common.MIN_N;
+    int dft_L = Common.DEFAULT_L, sendN = Common.DEFAULT_N;
 //    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
     Vector<Integer> mCurveData = new Vector<>();
 //    int mRealCurveLen = 0;
@@ -1028,6 +1029,10 @@ public class ResultController extends Activity {
                                 dataTmp = (int) (((resultSection[11]&0xff) << 24) | ((resultSection[12]&0xff) << 16) | ((resultSection[13]&0xff) << 8) | (resultSection[14] & 0xff));
                                 mCnt = dataTmp;
                                 nRecved += revResLen;
+
+                                // For measuring N
+                                mDl = dft_L * sendN / mDl;
+
                                 mUpdateDataUI();
 
                                 idx += revResLen - 3; // -1 for ++idx out of switch
@@ -1141,10 +1146,8 @@ public class ResultController extends Activity {
         cmdRes[2] = (byte) (workMode & 0xff);
 
         // int N to 2 bytes
-        cmdRes[3] = (byte) (mN >> 8);
-        cmdRes[4] = (byte) (mN & 0xff);
-
-//        int tmptest = (int) ((cmdRes[3] << 8) | (cmdRes[4] & 0xff));
+        cmdRes[3] = (byte) (sendN >> 8);
+        cmdRes[4] = (byte) (sendN & 0xff);
 
         cmdRes[5] = (byte) (rangeMode >> 8);
         cmdRes[6] = (byte) (rangeMode & 0xff);
