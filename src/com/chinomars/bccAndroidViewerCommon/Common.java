@@ -59,6 +59,9 @@ public class Common {
     // Specific method of draw curve
     public static final int FLAT_DATA_THRESH_HOLD = 700; // when diff is less than this config
 
+    // For measure delay to set default N
+    public static final int DEFAULT_N = 14500; // default n 折射率
+
     // Measure mode
     public static final Integer MEASURE_MODE_UNKNOW = 0;
     public static final Integer MEASURE_MODE_BCC = 1;

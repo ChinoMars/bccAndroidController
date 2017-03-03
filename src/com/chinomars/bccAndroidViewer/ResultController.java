@@ -46,7 +46,7 @@ public class ResultController extends Activity {
     ProgressBar pgInfor;
     TextView tvTitle, tvLog, tvDl;
     TextView tvOperartor, tvMeasureDate;
-    EditText edtCnt, edtLoss, edtDL, edtN;
+    EditText edtCnt, edtLoss, edtDL, edtN, edtDelay;
     SeekBar sekbN;
     RadioGroup rdiogRangeSetter;
     Button btnMeasure, btnParamSetter, btnSaveData, btnReadData;
@@ -55,7 +55,7 @@ public class ResultController extends Activity {
     BluetoothSocket btSocket = null;
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
-    int mCnt = 0, mLoss = 0, mDl = 0, mN = Common.MIN_N;
+    int mCnt = 0, mLoss = 0, mDl = 0, mN = Common.DEFAULT_N;
 //    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
     Vector<Integer> mCurveData = new Vector<>();
 //    int mRealCurveLen = 0;
@@ -104,7 +104,8 @@ public class ResultController extends Activity {
         edtDL = (EditText) this.findViewById(R.id.edt_dl);
         edtLoss = (EditText) this.findViewById(R.id.edt_loss);
         edtN = (EditText) this.findViewById(R.id.edt_n);
-        edtN.addTextChangedListener(textWatcher);
+//        edtN.addTextChangedListener(textWatcher);
+        edtDelay = (EditText) this.findViewById(R.id.edt_delay);
 
         sekbN = (SeekBar) this.findViewById(R.id.skb_n);
         sekbN.setOnSeekBarChangeListener(new SeekBarChangeEvent());
@@ -648,6 +649,10 @@ public class ResultController extends Activity {
         datatmp = (double) mDl / Common.SCALE / 100;
         str = String.format("%.6f", datatmp);
         edtDL.setText(str);
+
+        datatmp = Common.DEFAULT_N / Common.SCALE * datatmp * 10 / 3;
+        str = String.format(".5f", datatmp);
+        edtDelay.setText(str);
 
         if (mN >= Common.MIN_N && mN <= Common.MAX_N){
             datatmp = (double) mN / Common.SCALE;
