@@ -56,7 +56,7 @@ public class ResultController extends Activity {
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
     int mCnt = 0, mLoss = 0, mDl = 0, mN = Common.MIN_N;
-    int dft_L = Common.DEFAULT_L, sendN = Common.DEFAULT_N;
+    int recvL = 0, sendN = Common.DEFAULT_N;
 //    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
     Vector<Integer> mCurveData = new Vector<>();
 //    int mRealCurveLen = 0;
@@ -103,9 +103,10 @@ public class ResultController extends Activity {
 
         edtCnt = (EditText) this.findViewById(R.id.edt_cnt);
         edtDL = (EditText) this.findViewById(R.id.edt_dl);
+        edtDL.addTextChangedListener(watcherforL);
         edtLoss = (EditText) this.findViewById(R.id.edt_loss);
         edtN = (EditText) this.findViewById(R.id.edt_n);
-        edtN.addTextChangedListener(textWatcher);
+//        edtN.addTextChangedListener(textWatcher);
 
         sekbN = (SeekBar) this.findViewById(R.id.skb_n);
         sekbN.setOnSeekBarChangeListener(new SeekBarChangeEvent());
@@ -1019,19 +1020,24 @@ public class ResultController extends Activity {
                             System.arraycopy(revByteBuf, idx-2, resultSection, 0, revResLen);
                             byte checkSum = mGenCheckSum(resultSection, revResLen-1);
                             if (checkSum == resultSection[revResLen-1]) { // data correct
+                                // length data
                                 int dataTmp = (int) (((resultSection[3]&0xff) << 24) | ((resultSection[4]&0xff) << 16) | ((resultSection[5]&0xff) << 8) | (resultSection[6] & 0xff));
-                                mDl = dataTmp;
+                                recvL = dataTmp;
+
+                                // loss data
                                 dataTmp = (int) (((Common.MinusFlagZero&0xff) << 24) | ((resultSection[8]&0xff) << 16) | ((resultSection[9]&0xff) << 8) | (resultSection[10] & 0xff));
 								if(resultSection[7] != Common.MinusFlagZero){
 									mLoss = -dataTmp;
 								} else mLoss = dataTmp;
 
+                                // wave cnt data
                                 dataTmp = (int) (((resultSection[11]&0xff) << 24) | ((resultSection[12]&0xff) << 16) | ((resultSection[13]&0xff) << 8) | (resultSection[14] & 0xff));
                                 mCnt = dataTmp;
+
                                 nRecved += revResLen;
 
                                 // For measuring N
-                                mDl = dft_L * sendN / mDl;
+                                mDl = mDl * sendN / recvL;
 
                                 mUpdateDataUI();
 
@@ -1165,10 +1171,14 @@ public class ResultController extends Activity {
                     mToastMaker("请先选择测量范围");
                     return;
                 }
+                if(0 == mDl) {
+                    mToastMaker("请输入光纤长度");
+                    return;
+                }
                 if (bConnect) {
                     edtCnt.setText("0.0");
                     edtLoss.setText("0.00");
-                    edtDL.setText("0.00000");
+//                    edtDL.setText("0.00000");
                     mCurveDrawer.clear();
                     byte[] sendCmd = mGenMeasureCmd();
                     Log.d(Common.TAG, "workmode: " + String.valueOf(sendCmd[6]));
@@ -1261,6 +1271,24 @@ public class ResultController extends Activity {
         }
     };
 
+    // TODO add textwatcher to mDl
+    private TextWatcher watcherforL = new TextWatcher(){
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String str = edtN.getText().toString();
+            mDl = Integer.valueOf(str);
+        }
+    };
 
     class SeekBarChangeEvent implements SeekBar.OnSeekBarChangeListener {
         @Override

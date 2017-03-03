@@ -16,7 +16,7 @@
     <string name="txt_fst">FSR:</string>
     <string name="txt_mhz">MHz</string>
     <string name="txt_dl">臂长差：</string>
-    <string name="txt_l">长度：</string>
+    <string name="txt_l">光纤长度：</string>
     <string name="txt_metre">m</string>
     <string name="txt_n">折射率：</string>
     <string name="txt_measure_range">测量范围：</string>

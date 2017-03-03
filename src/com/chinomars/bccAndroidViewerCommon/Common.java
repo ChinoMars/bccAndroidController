@@ -50,7 +50,6 @@ public class Common {
 
     // For measuring N setting
     public static final int DEFAULT_N = 14500; // setting default N to send
-    public static final int DEFAULT_L = 5012000; // setting default L to calc real L
 
     public static final int TIME_OUT = 20; // time out of 12s will alert
 
