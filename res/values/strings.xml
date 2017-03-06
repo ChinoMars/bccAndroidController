@@ -36,9 +36,9 @@
     <string name="txt_btn_save">保存数据</string>
     <string name="txt_btn_read">读取数据</string>
     <string name="txt_btn_exit">退出</string>
-    <string name="txt_title_bbc">干涉型臂长差测量软件</string>
-    <string name="txt_title_gxc">光纤链路长度测量软件</string>
-    <string name="txt_title_delay">光纤延时测量软件</string>
+    <string name="txt_title_bbc">双光纤链路差分延时测量软件</string>
+    <string name="txt_title_gxc">单光纤链路延时测量软件</string>
+    <string name="txt_title_delay">单光纤链路延时测量模式</string>
     <string name="txt_btn_subN">减小</string>
     <string name="txt_btn_addN">增加</string>
     <string name="txt_operator">操作人：</string>
