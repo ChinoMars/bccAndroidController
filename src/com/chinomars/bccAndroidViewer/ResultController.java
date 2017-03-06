@@ -78,8 +78,8 @@ public class ResultController extends Activity {
             mMeasureDate,
             mComment;
 
-//    Boolean isLegalDevice = false;
-    Boolean isLegalDevice = true;
+    Boolean isLegalDevice = false;
+//    Boolean isLegalDevice = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
