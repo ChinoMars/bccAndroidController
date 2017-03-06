@@ -31,11 +31,14 @@
             android:padding="20dip"
             android:gravity="center_horizontal"
             style="@style/txtStyle"
+            android:visibility="gone"
         />
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rdiog_modeSet">
+        android:id="@+id/rdiog_modeSet"
+        android:visibility="gone"
+    >
         <RadioButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

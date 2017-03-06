@@ -55,7 +55,8 @@ public class ResultController extends Activity {
     BluetoothSocket btSocket = null;
 
     int rangeMode = Common.MEASURE_RANGE_UNKNOW;
-    int mCnt = 0, mLoss = 0, mDl = 0, mN = Common.MIN_N;
+    int mCnt = 0, mLoss = 0, mN = Common.DEFAULT_N;
+    double  mDl = 0;
     int recvL = 0, sendN = Common.DEFAULT_N;
 //    int[] mCurveData = new int[Common.MAX_CURVE_LEN];
     Vector<Integer> mCurveData = new Vector<>();
@@ -64,7 +65,7 @@ public class ResultController extends Activity {
     Boolean bConnect = false;
     String strName;
     String strAddr;
-    int workMode = Common.MEASURE_MODE_UNKNOW;
+    int workMode = Common.MEASURE_MODE_GXC;
     int nNeed = 0;
     byte[] bRecv = new byte[1024];
     int nRecved = 0;
@@ -79,7 +80,7 @@ public class ResultController extends Activity {
             mMeasureDate,
             mComment;
 
-    Boolean isLegalDevice = false;
+    Boolean isLegalDevice = false; // true for debug, false for release
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +106,7 @@ public class ResultController extends Activity {
         edtDL = (EditText) this.findViewById(R.id.edt_dl);
         edtDL.addTextChangedListener(watcherforL);
         edtLoss = (EditText) this.findViewById(R.id.edt_loss);
-        edtN = (EditText) this.findViewById(R.id.edt_n);
+//        edtN = (EditText) this.findViewById(R.id.edt_n);
 //        edtN.addTextChangedListener(textWatcher);
 
         sekbN = (SeekBar) this.findViewById(R.id.skb_n);
@@ -125,7 +126,7 @@ public class ResultController extends Activity {
         btnReadData.setOnClickListener(new ClickEvent());
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
-        tvTitle.setOnClickListener(new ClickEvent());
+//        tvTitle.setOnClickListener(new ClickEvent());
         tvDl = (TextView) this.findViewById(R.id.txt_dl);
         tvOperartor = (TextView) this.findViewById(R.id.txt_operator);
         tvMeasureDate = (TextView) this.findViewById(R.id.txt_date);
@@ -1241,7 +1242,7 @@ public class ResultController extends Activity {
             try{
                 int value = (int)(Double.valueOf(str) * Common.SCALE);
                 if (value < Common.MIN_N || value > Common.MAX_N) {
-                    mToastMaker("您输入的折射率超过范围，请重新输入");
+                    mToastMaker("折射率超过测量范围");
                 }
 
             } catch (Exception e){
@@ -1285,8 +1286,13 @@ public class ResultController extends Activity {
 
         @Override
         public void afterTextChanged(Editable editable) {
-            String str = edtN.getText().toString();
-            mDl = Integer.valueOf(str);
+            String str = edtDL.getText().toString();
+            try{
+                mDl = Double.valueOf(str);
+            } catch (Exception e) {
+                Log.d(Common.TAG, "Error when setting Length of fiber");
+            }
+
         }
     };
 
@@ -1333,7 +1339,7 @@ public class ResultController extends Activity {
                 setMeasureRange(Common.MEASURE_RANGE_SHORT);
             }
 
-            Log.d(Common.TAG, "workMode: " + String.valueOf(rangeMode));
+            Log.d(Common.TAG, "rangeMode: " + String.valueOf(rangeMode));
 
         }
 

@@ -45,7 +45,7 @@ public class BccController extends Activity {
     Button btnScan, btnConnect, btnAbout, btnLocalMAC;
     RadioGroup rdiogModeSet;
 
-    int measureMode = Common.MEASURE_MODE_UNKNOW;
+    int measureMode = Common.MEASURE_MODE_GXC;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ public class BccController extends Activity {
 
         // Radio Button 设置
         rdiogModeSet = (RadioGroup) this.findViewById(R.id.rdiog_modeSet);
-        rdiogModeSet.setOnCheckedChangeListener(new CheckedChangeEvent());
+//        rdiogModeSet.setOnCheckedChangeListener(new CheckedChangeEvent());
 
 
 //        lvBTDevices = (ListView) this.findViewById(R.id.lvDevices);

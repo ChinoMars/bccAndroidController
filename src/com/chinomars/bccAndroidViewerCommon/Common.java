@@ -27,9 +27,9 @@ public class Common {
     public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
     // BIND INFORMATION
-//    public static final String BIND_BT_MAC = "30:14:12:26:11:35"; // test single blue tooth
+    public static final String BIND_BT_MAC = "30:14:12:26:11:35"; // test single blue tooth
 //    public static final String BIND_BT_MAC = "00:0E:EA:CF:62:55"; // test board
-     public static final String BIND_BT_MAC = "00:0E:EA:CF:BA:F2"; // new test board
+//     public static final String BIND_BT_MAC = "00:0E:EA:CF:BA:F2"; // new test board
 //    public static final String BIND_BT_MAC = "00:0E:EA:CF:BA:F0"; // product board
 
 //    public static final String LOCAL_BT_MAC = "86:28:E1:24:46:6E"; // test ANDROID PAD
@@ -65,7 +65,7 @@ public class Common {
     // Measure mode
     public static final Integer MEASURE_MODE_UNKNOW = 0;
     public static final Integer MEASURE_MODE_BCC = 1;
-    public static final Integer MEASURE_MODE_GXC = 2;
+    public static final Integer MEASURE_MODE_GXC = 2; // default setting for measure N
     public static final Integer MESURE_MODE_CHECK_FREQ = 3; // 频带校准
     public static final Integer MESURE_MODE_CHECK_LENGTH_TO_ZERO = 4; //长度校零
     public static final Integer MEASURE_RANGE_UNKNOW = 0;
@@ -79,13 +79,13 @@ public class Common {
     public static final String TAG = "BlueToothTool";
 
     // Static String Content
-    public static final String APP_NAME = "光纤长度精密测量仪";
+    public static final String APP_NAME = "光纤折射率测量仪";
     public static final String ABOUT_CONTENT = "请选择软件工作模式后再开始工作:\n1.干涉型臂长差测量模式\n2.光线链路长度测量模式";
     public static final String BTN_YES = "确定";
     public static final String BCC_MODE_TITLE = "干涉型臂长差测量仪";
-    public static final String GXC_MODE_TITLE = "光纤链路长度测量仪";
+    public static final String GXC_MODE_TITLE = "光纤折射率测量仪"; // default setting to measure N
     public static final String BCC_MODE_DL = "臂长差：";
-    public static final String GXC_MODE_L = "长度：";
+    public static final String GXC_MODE_L = "光纤长度：";
     public static final String OPERATOR = "操作人：";
     public static final String MEASURE_TIME = "测量时间：";
 
