@@ -44,7 +44,7 @@ public class ResultController extends Activity {
     LineChart mCurveDrawer;
     ScrollView svLogger;
     ProgressBar pgInfor;
-    TextView tvTitle, tvLog, tvDl;
+    TextView tvTitle, tvLog, tvDl, tvDelay;
     TextView tvOperartor, tvMeasureDate;
     EditText edtCnt, edtLoss, edtDL, edtN, edtDelay;
     SeekBar sekbN;
@@ -78,7 +78,8 @@ public class ResultController extends Activity {
             mMeasureDate,
             mComment;
 
-    Boolean isLegalDevice = false;
+//    Boolean isLegalDevice = false;
+    Boolean isLegalDevice = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,8 +125,9 @@ public class ResultController extends Activity {
         btnReadData.setOnClickListener(new ClickEvent());
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
-//        tvTitle.setOnClickListener(new ClickEvent());
+        tvTitle.setOnClickListener(new ClickEvent());
         tvDl = (TextView) this.findViewById(R.id.txt_dl);
+        tvDelay = (TextView) this.findViewById(R.id.txt_delay);
         tvOperartor = (TextView) this.findViewById(R.id.txt_operator);
         tvMeasureDate = (TextView) this.findViewById(R.id.txt_date);
 
@@ -1211,10 +1213,12 @@ public class ResultController extends Activity {
                 if (recentTitle.equals(Common.BCC_MODE_TITLE)) {
                     tvTitle.setText(Common.GXC_MODE_TITLE);
 //                    tvDl.setText(Common.GXC_MODE_L);
+                    tvDelay.setText(Common.GXC_MODE_DELAY);
                     workMode = Common.MEASURE_MODE_GXC;
                 } else {
                     tvTitle.setText(Common.BCC_MODE_TITLE);
 //                    tvDl.setText(Common.BCC_MODE_DL);
+                    tvDelay.setText(Common.BCC_MODE_DIFFDELAY);
                     workMode = Common.MEASURE_MODE_BCC;
                 }
             }
@@ -1344,10 +1348,12 @@ public class ResultController extends Activity {
     private void mSetTitle(int mode) {
         if (mode == Common.MEASURE_MODE_BCC) {
             tvTitle.setText(Common.BCC_MODE_TITLE);
-            tvDl.setText(Common.BCC_MODE_DL);
+//            tvDl.setText(Common.BCC_MODE_DL);
+            tvDelay.setText(Common.BCC_MODE_DIFFDELAY);
         } else if (mode == Common.MEASURE_MODE_GXC) {
             tvTitle.setText(Common.GXC_MODE_TITLE);
-            tvDl.setText(Common.GXC_MODE_L);
+//            tvDl.setText(Common.GXC_MODE_L);
+            tvDelay.setText(Common.GXC_MODE_DELAY);
         }
     }
 
