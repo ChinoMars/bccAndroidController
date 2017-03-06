@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">光纤长度精密测量软件</string>
+    <string name="app_name">光纤延时精密测量软件</string>
     <string name="txt_btn_setMac">设置蓝牙MAC地址</string>
     <string name="txt_setHint">请选择工作模式</string>
     <string name="txt_btn_scan">扫描设备</string>
@@ -29,8 +29,10 @@
     <string name="txt_rdio_short">Short (&#060;0.5m)</string>
 
 
-    <string name="txt_rdio_bccMode">干涉型臂长差测量模式</string>
-    <string name="txt_rdio_gxcMode">光纤链路长测量模式</string>
+    <!--<string name="txt_rdio_bccMode">干涉型臂长差测量模式</string>-->
+    <!--<string name="txt_rdio_gxcMode">光纤链路长测量模式</string>-->
+    <string name="txt_rdio_bccMode">双光纤链路差分延时测量模式</string>
+    <string name="txt_rdio_gxcMode">单光纤链路延时测量模式</string>
     <string name="txt_btn_save">保存数据</string>
     <string name="txt_btn_read">读取数据</string>
     <string name="txt_btn_exit">退出</string>

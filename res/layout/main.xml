@@ -69,11 +69,13 @@
                 style="@style/btnStyle"
         />
 
-        <!--<Button android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/btn_localMAC"-->
-                <!--android:text="本机MAC"-->
-        <!--/>-->
+        <Button android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_localMAC"
+                android:text="本机MAC"
+                style="@style/btnStyle"
+                android:visibility="gone"
+        />
     </LinearLayout>
 
     <!--<ListView android:layout_width="fill_parent"-->
