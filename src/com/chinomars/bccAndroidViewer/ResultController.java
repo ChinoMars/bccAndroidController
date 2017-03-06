@@ -124,7 +124,7 @@ public class ResultController extends Activity {
         btnReadData.setOnClickListener(new ClickEvent());
 
         tvTitle = (TextView) this.findViewById(R.id.result_title);
-        tvTitle.setOnClickListener(new ClickEvent());
+//        tvTitle.setOnClickListener(new ClickEvent());
         tvDl = (TextView) this.findViewById(R.id.txt_dl);
         tvOperartor = (TextView) this.findViewById(R.id.txt_operator);
         tvMeasureDate = (TextView) this.findViewById(R.id.txt_date);

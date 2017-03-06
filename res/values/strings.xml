@@ -36,6 +36,7 @@
     <string name="txt_btn_exit">退出</string>
     <string name="txt_title_bbc">干涉型臂长差测量软件</string>
     <string name="txt_title_gxc">光纤链路长度测量软件</string>
+    <string name="txt_title_delay">光纤延时测量软件</string>
     <string name="txt_btn_subN">减小</string>
     <string name="txt_btn_addN">增加</string>
     <string name="txt_operator">操作人：</string>
