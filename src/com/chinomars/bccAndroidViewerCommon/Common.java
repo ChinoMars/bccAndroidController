@@ -80,11 +80,11 @@ public class Common {
     public static final String TAG = "BlueToothTool";
 
     // Static String Content
-    public static final String APP_NAME = "光纤长度精密测量仪";
-    public static final String ABOUT_CONTENT = "请选择软件工作模式后再开始工作:\n1.干涉型臂长差测量模式\n2.光线链路长度测量模式";
+    public static final String APP_NAME = "光纤延时精密测量仪";
+    public static final String ABOUT_CONTENT = "请选择软件工作模式后再开始工作:\n1.双光纤链路差分延时测量模式\n2.单光纤链路延时测量模式";
     public static final String BTN_YES = "确定";
-    public static final String BCC_MODE_TITLE = "干涉型臂长差测量仪";
-    public static final String GXC_MODE_TITLE = "光纤链路长度测量仪";
+    public static final String BCC_MODE_TITLE = "双光纤链路差分延时测量仪";
+    public static final String GXC_MODE_TITLE = "单光纤链路延时测量仪";
     public static final String BCC_MODE_DL = "臂长差：";
     public static final String GXC_MODE_L = "长度：";
     public static final String OPERATOR = "操作人：";
