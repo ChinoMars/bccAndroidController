@@ -34,7 +34,8 @@ public class Common {
 
 //    public static final String LOCAL_BT_MAC = "86:28:E1:24:46:6E"; // test ANDROID PAD
 //    public static final String LOCAL_BT_MAC = "22:22:41:C4:81:7C"; // MULTIPLE SYS PAD OLD
-    public static final String LOCAL_BT_MAC = "22:22:97:AB:83:0F"; // MULTIPLE SYS PAD NEW
+//    public static final String LOCAL_BT_MAC = "22:22:97:AB:83:0F"; // MULTIPLE SYS PAD NEW
+    public static final String LOCAL_BT_MAC = "43:43:A0:12:1F:AC";
 
     public static final int MIN_N = 14400; // mim n
     public static final int MAX_N = 15000; // max n
