@@ -1190,7 +1190,7 @@ public class ResultController extends Activity {
                 }
 
                 // clear focus when click measure button
-                edtN.clearFocus();
+//                edtN.clearFocus();
 
             } else if (v == btnParamSetter) {
                 showParamSetDialog();
